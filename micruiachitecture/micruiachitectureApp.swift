@@ -1,17 +1,20 @@
-//
-//  micruiachitectureApp.swift
-//  micruiachitecture
-//
-//  Created by Pardip Bhatti on 12/04/26.
-//
-
 import SwiftUI
+import MicroUICore
 
 @main
-struct micruiachitectureApp: App {
+struct MicruiachitectureApp: App {
+
+    // MARK: - Init
+
+    init() {
+        MicroUIBootstrap.register()
+    }
+
+    // MARK: - Scene
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }

@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x /Users/pardipbhatti/Desktop/micruiachitecture/Tools/create-microui.sh)",
+      "Bash(./Tools/create-microui.sh AboutScreen)",
+      "Bash(sips -s format jpeg -s formatOptions 50 /Users/pardipbhatti/Downloads/IMG_0106.HEIC --out /tmp/IMG_0106_preview.jpg)",
+      "Bash(./Tools/create-microui.sh --dry-run TestFeature)",
+      "Bash(printf \"creditcard\\\\nManage cards\\\\n\")",
+      "Bash(./Tools/create-microui.sh TestFeature)",
+      "Bash(printf \"\\\\n\\\\n\")",
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(mkdir -p __TRACKED_VAR__/ViewModels)",
+      "Bash(mv __TRACKED_VAR__/UI/Screens/HomeListViewModel.swift __TRACKED_VAR__/ViewModels/)",
+      "Bash(mv __TRACKED_VAR__/UI/Screens/HomeItemDetailViewModel.swift __TRACKED_VAR__/ViewModels/)",
+      "Bash(mv __TRACKED_VAR__/UI/Navigation/FeatureHomeMicroUIRouter.swift __TRACKED_VAR__/)",
+      "Bash(mv __TRACKED_VAR__/UI/Navigation/FeatureHomeMicroUITileBuilder.swift __TRACKED_VAR__/)",
+      "Bash(mkdir -p __TRACKED_VAR__/Builder)",
+      "Bash(mv __TRACKED_VAR__/FeatureHomeMicroUIConfig.swift __TRACKED_VAR__/Builder/)",
+      "Bash(mv __TRACKED_VAR__/FeatureHomeMicroUIRouter.swift __TRACKED_VAR__/Builder/)",
+      "Bash(mv __TRACKED_VAR__/FeatureHomeMicroUITileBuilder.swift __TRACKED_VAR__/Builder/)",
+      "Bash(mv __TRACKED_VAR__/FeatureHomeMicroUIScreenBuilder.swift __TRACKED_VAR__/Builder/)",
+      "Bash(printf \"Pardip Bhatti\\\\npardip@example.com\\\\nperson.badge.key.fill\\\\nSign in & manage\\\\n\")",
+      "Bash(/Users/pardipbhatti/Desktop/micruiachitecture/Tools/create-microui.sh Auth)",
+      "Bash(printf \"Test User\\\\ntest@test.com\\\\nstar\\\\nView test\\\\n\")",
+      "Bash(/Users/pardipbhatti/Desktop/micruiachitecture/Tools/create-microui.sh --dry-run Payment)",
+      "Bash(printf \"Test User\\\\ntest@test.com\\\\ncreditcard\\\\nMake payments\\\\n\")",
+      "Bash(/Users/pardipbhatti/Desktop/micruiachitecture/Tools/create-microui.sh Payment)",
+      "Bash(printf \"Test\\\\ntest@test.com\\\\nbook.fill\\\\nBrowse stories\\\\n\")",
+      "Bash(/Users/pardipbhatti/Desktop/micruiachitecture/Tools/create-microui.sh StoryLibrary)",
+      "Bash(sips -s format jpeg -s formatOptions 50 /Users/pardipbhatti/Downloads/IMG_0107.HEIC --out /tmp/IMG_0107.jpg)",
+      "Bash(sips -s format jpeg -s formatOptions 50 /Users/pardipbhatti/Downloads/IMG_0108.HEIC --out /tmp/IMG_0108.jpg)",
+      "Bash(sips -s format jpeg -s formatOptions 50 /Users/pardipbhatti/Downloads/IMG_0109.HEIC --out /tmp/IMG_0109.jpg)"
+    ]
+  }
+}

@@ -15,6 +15,9 @@ struct MicruiachitectureApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .onOpenURL { url in
+                    OwlsDeepLinkRouter.shared.route(url: url)
+                }
         }
     }
 }

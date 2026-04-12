@@ -205,9 +205,88 @@ let package = Package(
         .target(
             name: "${MODULE}",
             dependencies: ["MicroUICore"]
+        ),
+        .testTarget(
+            name: "${MODULE}Tests",
+            dependencies: ["${MODULE}"]
         )
     ]
 )
+EOF
+
+# ─── Test File ───
+
+mkdir -p "${PKG_DIR}/Tests/${MODULE}Tests"
+
+cat > "${PKG_DIR}/Tests/${MODULE}Tests/${MODULE}ViewModelTests.swift" << EOF
+import Testing
+@testable import ${MODULE}
+
+@Suite("${MODULE} ViewModel Tests")
+struct ${MODULE}ViewModelTests {
+
+    // MARK: - Mock Repository
+
+    struct Stub${NAME}Repository: ${NAME}Repository {
+        var mockItems: [${NAME}Item] = ${NAME}Item.mock
+        var shouldFail = false
+
+        func loadAll() async throws -> [${NAME}Item] {
+            if shouldFail { throw TestError.mockFailure }
+            return mockItems
+        }
+
+        func loadDetail(id: String) async throws -> ${NAME}Item {
+            guard let item = mockItems.first(where: { \$0.id == id }) else {
+                throw TestError.mockFailure
+            }
+            return item
+        }
+
+        func create(name: String) async throws -> ${NAME}Item {
+            ${NAME}Item(id: UUID().uuidString, title: name, subtitle: "Test", iconName: "star", createdAt: Date())
+        }
+
+        func delete(id: String) async throws {
+            if shouldFail { throw TestError.mockFailure }
+        }
+    }
+
+    enum TestError: Error { case mockFailure }
+
+    // MARK: - Tests
+
+    @Test("Load items successfully")
+    func loadItems() async {
+        let vm = ${MODULE}ViewModel(repository: Stub${NAME}Repository())
+        await vm.load()
+
+        #expect(vm.items.count == 3)
+        #expect(vm.isLoading == false)
+        #expect(vm.errorMessage == nil)
+    }
+
+    @Test("Load items failure shows error")
+    func loadItemsFailure() async {
+        let vm = ${MODULE}ViewModel(repository: Stub${NAME}Repository(shouldFail: true))
+        await vm.load()
+
+        #expect(vm.items.isEmpty)
+        #expect(vm.errorMessage != nil)
+    }
+
+    @Test("Delete item removes from list")
+    func deleteItem() async {
+        let vm = ${MODULE}ViewModel(repository: Stub${NAME}Repository())
+        await vm.load()
+
+        let firstId = vm.items.first?.id ?? ""
+        let countBefore = vm.items.count
+        await vm.deleteItem(id: firstId)
+
+        #expect(vm.items.count == countBefore - 1)
+    }
+}
 EOF
 
 # ─── Config ───

@@ -7,10 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		064DC43C2F8C42FE00196F4F /* AboutScreenMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 064DC43B2F8C42FE00196F4F /* AboutScreenMicroUI */; };
 		0C18B15F337F25EAD728E56E /* StoryLibraryMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 468D5BC0CBAFDBF94C42F52D /* StoryLibraryMicroUI */; };
 		486F3047AEF9FA2422FC7C35 /* AuthMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 21FB480FEDF479A50E9C48DF /* AuthMicroUI */; };
-		A5138FDEA8CF07D0062CA17F /* TransfersMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = B72B2EC424215B23081F81B4 /* TransfersMicroUI */; };
 		AA0001012F8C3D4300196F4F /* MicroUICore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003012F8C3D4300196F4F /* MicroUICore */; };
 		AA0001022F8C3D4300196F4F /* FeatureHomeMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003022F8C3D4300196F4F /* FeatureHomeMicroUI */; };
 		AA0001032F8C3D4300196F4F /* FeatureProfileMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */; };
@@ -34,10 +32,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001012F8C3D4300196F4F /* MicroUICore in Frameworks */,
-				064DC43C2F8C42FE00196F4F /* AboutScreenMicroUI in Frameworks */,
 				AA0001022F8C3D4300196F4F /* FeatureHomeMicroUI in Frameworks */,
 				AA0001032F8C3D4300196F4F /* FeatureProfileMicroUI in Frameworks */,
-				A5138FDEA8CF07D0062CA17F /* TransfersMicroUI in Frameworks */,
 				486F3047AEF9FA2422FC7C35 /* AuthMicroUI in Frameworks */,
 				0C18B15F337F25EAD728E56E /* StoryLibraryMicroUI in Frameworks */,
 			);
@@ -85,8 +81,6 @@
 				AA0003012F8C3D4300196F4F /* MicroUICore */,
 				AA0003022F8C3D4300196F4F /* FeatureHomeMicroUI */,
 				AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */,
-				064DC43B2F8C42FE00196F4F /* AboutScreenMicroUI */,
-				B72B2EC424215B23081F81B4 /* TransfersMicroUI */,
 				21FB480FEDF479A50E9C48DF /* AuthMicroUI */,
 				468D5BC0CBAFDBF94C42F52D /* StoryLibraryMicroUI */,
 			);
@@ -122,8 +116,6 @@
 				AA0002012F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/MicroUICore" */,
 				AA0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/FeatureHomeMicroUI" */,
 				AA0002032F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/FeatureProfileMicroUI" */,
-				064DC43A2F8C42FE00196F4F /* XCLocalSwiftPackageReference "Packages/AboutScreenMicroUI" */,
-				5725EFA9E981AAFF0EFF94D0 /* XCLocalSwiftPackageReference "Packages/TransfersMicroUI" */,
 				306806C777573857C234DF20 /* XCLocalSwiftPackageReference "Packages/AuthMicroUI" */,
 				D996944DA04EB0A9AF1FB582 /* XCLocalSwiftPackageReference "Packages/StoryLibraryMicroUI" */,
 			);
@@ -367,17 +359,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		064DC43A2F8C42FE00196F4F /* XCLocalSwiftPackageReference "Packages/AboutScreenMicroUI" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/AboutScreenMicroUI;
-		};
 		306806C777573857C234DF20 /* XCLocalSwiftPackageReference "Packages/AuthMicroUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AuthMicroUI;
-		};
-		5725EFA9E981AAFF0EFF94D0 /* XCLocalSwiftPackageReference "Packages/TransfersMicroUI" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/TransfersMicroUI;
 		};
 		AA0002012F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/MicroUICore" */ = {
 			isa = XCLocalSwiftPackageReference;
@@ -398,10 +382,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		064DC43B2F8C42FE00196F4F /* AboutScreenMicroUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AboutScreenMicroUI;
-		};
 		21FB480FEDF479A50E9C48DF /* AuthMicroUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AuthMicroUI;
@@ -421,10 +401,6 @@
 		AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FeatureProfileMicroUI;
-		};
-		B72B2EC424215B23081F81B4 /* TransfersMicroUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TransfersMicroUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

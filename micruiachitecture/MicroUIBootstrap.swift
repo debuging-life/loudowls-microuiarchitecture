@@ -1,8 +1,6 @@
 import MicroUICore
 import FeatureHomeMicroUI
 import FeatureProfileMicroUI
-import AboutScreenMicroUI
-import TransfersMicroUI
 import AuthMicroUI
 import StoryLibraryMicroUI
 
@@ -11,8 +9,6 @@ enum MicroUIBootstrap {
     private static let modules: [MicroUIRegistration] = [
         FeatureHomeMicroUIConfig(),
         FeatureProfileMicroUIConfig(),
-        AboutScreenMicroUIConfig(),
-        TransfersMicroUIConfig(),
         AuthMicroUIConfig(),
         StoryLibraryMicroUIConfig()
     ]

@@ -5,6 +5,7 @@ struct HomeListView: View {
 
     @State private var viewModel: HomeListViewModel
     @State private var path = NavigationPath()
+    @State private var fullScreenStory: Story?
 
     init(viewModel: HomeListViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -12,85 +13,124 @@ struct HomeListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            content
-                .navigationTitle("Accounts")
-                .navigationDestination(for: FeatureHomeMicroUIRouter.self) { route in
-                    route.resolveViewForRoute()
+            Group {
+                if viewModel.isLoading {
+                    OwlsLoadingView("Loading stories…")
+                } else if let error = viewModel.errorMessage {
+                    OwlsEmptyState(
+                        icon: "exclamationmark.triangle",
+                        title: "Something went wrong",
+                        description: error,
+                        actionTitle: "Retry"
+                    ) { Task { await viewModel.loadStories() } }
+                } else if viewModel.stories.isEmpty {
+                    OwlsEmptyState(icon: "book", title: "No Stories Yet", description: "Tap + to create your first story.")
+                } else {
+                    storyList
                 }
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        dismissButton
+            }
+            .navigationTitle("Stories")
+            // MARK: Push — detail screen
+            .navigationDestination(for: FeatureHomeMicroUIRouter.self) { route in
+                route.resolveViewForRoute()
+            }
+            .toolbar {
+                // MARK: Sheet — create story
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { viewModel.isCreateSheetPresented = true } label: {
+                        Image(systemName: "plus")
                     }
                 }
+            }
+            // MARK: Sheet presentation
+            .sheet(isPresented: $viewModel.isCreateSheetPresented) {
+                StoryCreateSheet(viewModel: viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+            // MARK: Fullscreen presentation
+            .fullScreenCover(item: $fullScreenStory) { story in
+                StoryFullScreenView(story: story)
+            }
         }
-        .task { await viewModel.loadItems() }
+        .task { await viewModel.loadStories() }
+        .trackScreen("StoryList", module: "FeatureHomeMicroUI")
     }
 
-    // MARK: - Content
+    // MARK: - Story List
 
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.isLoading {
-            ProgressView("Loading accounts…")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let error = viewModel.errorMessage {
-            ContentUnavailableView(
-                "Something went wrong",
-                systemImage: "exclamationmark.triangle",
-                description: Text(error)
-            )
-        } else {
-            list
-        }
-    }
-
-    private var list: some View {
-        List(viewModel.items) { item in
-            Button {
-                path.append(FeatureHomeMicroUIRouter.detail(item))
-            } label: {
-                HomeItemRow(item: item)
+    private var storyList: some View {
+        List {
+            ForEach(viewModel.stories) { story in
+                Button {
+                    // Navigation: push to detail screen
+                    path.append(FeatureHomeMicroUIRouter.detail(story))
+                } label: {
+                    StoryRow(story: story) {
+                        // Fullscreen: open reader
+                        fullScreenStory = story
+                    } onFavorite: {
+                        viewModel.toggleFavorite(id: story.id)
+                    }
+                }
+            }
+            .onDelete { indexSet in
+                for index in indexSet {
+                    let story = viewModel.stories[index]
+                    Task { await viewModel.deleteStory(id: story.id) }
+                }
             }
         }
         .listStyle(.plain)
     }
-
-    // MARK: - Dismiss
-
-    @Injected(\.homeNavigationCoordinator) private var coordinator
-
-    private var dismissButton: some View {
-        Button("Close") { coordinator.dismiss() }
-    }
 }
 
-// MARK: - Row
+// MARK: - Story Row
 
-private struct HomeItemRow: View {
-    let item: HomeItem
+private struct StoryRow: View {
+    let story: Story
+    let onFullScreen: () -> Void
+    let onFavorite: () -> Void
 
     var body: some View {
         HStack(spacing: OwlsSpacing.md) {
-            Image(systemName: item.iconName)
-                .font(.title3)
+            // Cover Icon
+            Image(systemName: story.coverIcon)
+                .font(.title2)
                 .foregroundStyle(OwlsColor.primary)
-                .frame(width: 36, height: 36)
+                .frame(width: 44, height: 44)
+                .background(OwlsColor.primary.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: OwlsRadius.md))
 
+            // Info
             VStack(alignment: .leading, spacing: OwlsSpacing.xxs) {
-                Text(item.title)
+                Text(story.title)
                     .font(OwlsTypography.headline)
-                Text(item.subtitle)
+                    .foregroundStyle(OwlsColor.label)
+                Text(story.author)
                     .font(OwlsTypography.caption)
+                    .foregroundStyle(OwlsColor.secondaryLabel)
+                Text("\(story.readTime) min read")
+                    .font(OwlsTypography.footnote)
                     .foregroundStyle(OwlsColor.secondaryLabel)
             }
 
             Spacer()
 
-            if let amount = item.amount {
-                Text(amount, format: .currency(code: "USD"))
-                    .font(OwlsTypography.callout)
-                    .foregroundStyle(amount >= 0 ? OwlsColor.label : .red)
+            // Favorite
+            Button { onFavorite() } label: {
+                Image(systemName: story.isFavorite ? "heart.fill" : "heart")
+                    .foregroundStyle(story.isFavorite ? .red : OwlsColor.secondaryLabel)
             }
+            .buttonStyle(.plain)
+
+            // Fullscreen
+            Button { onFullScreen() } label: {
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.caption)
+                    .foregroundStyle(OwlsColor.secondaryLabel)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, OwlsSpacing.xs)
     }

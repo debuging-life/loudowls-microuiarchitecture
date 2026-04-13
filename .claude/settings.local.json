@@ -62,7 +62,11 @@
       "Bash(gh release:*)",
       "Bash(git remote:*)",
       "Bash(rm -f /Users/pardipbhatti/Desktop/micruiachitecture/.git/index.lock)",
-      "Bash(git commit -m 'Remove Tools, update README with Homebrew CLI:*)"
+      "Bash(git commit -m 'Remove Tools, update README with Homebrew CLI:*)",
+      "Bash(grep -E \"\\\\.swift$\")",
+      "Bash(git commit -m 'Upgrade navigation + remove AppRouter:*)",
+      "Bash(shasum -a 256 /tmp/owls-v230/*)",
+      "Bash(git commit -m 'Update Formula to v2.3.0 with new asset IDs and SHA256:*)"
     ]
   }
 }

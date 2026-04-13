@@ -1,16 +1,15 @@
 import Foundation
 import Observation
+import MicroUICore
+import Factory
 
 @Observable
 final class ProfileViewModel {
 
-    // MARK: - State
-
     private(set) var profile: UserProfile?
     private(set) var isLoading = false
     private(set) var errorMessage: String?
-
-    // MARK: - Dependencies
+    var isLogoutConfirmPresented = false
 
     private let repository: ProfileRepository
 
@@ -18,7 +17,7 @@ final class ProfileViewModel {
         self.repository = repository
     }
 
-    // MARK: - Actions
+    // MARK: - Load
 
     func loadProfile() async {
         isLoading = true
@@ -29,5 +28,15 @@ final class ProfileViewModel {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    // MARK: - Logout
+
+    func logout() {
+        Container.shared.authTokenProvider.register { nil }
+        OwlsKeychain.shared.delete(OwlsKeychain.Keys.accessToken)
+        OwlsKeychain.shared.delete(OwlsKeychain.Keys.refreshToken)
+        OwlsAnalytics.track(.buttonTapped("Logout", screen: "Profile"))
+        OwlsEventBus.shared.post(.userLoggedOut)
     }
 }

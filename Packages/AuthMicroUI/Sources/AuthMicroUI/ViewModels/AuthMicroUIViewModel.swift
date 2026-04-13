@@ -10,9 +10,11 @@ final class AuthMicroUIViewModel {
 
     var username = ""
     var password = ""
+    var signupName = ""
+    var signupEmail = ""
+    var signupPassword = ""
     private(set) var isLoading = false
     private(set) var errorMessage: String?
-    private(set) var currentToken: AuthToken?
     private(set) var isLoggedIn = false
 
     // MARK: - Dependencies
@@ -23,7 +25,7 @@ final class AuthMicroUIViewModel {
         self.repository = repository
     }
 
-    // MARK: - Actions
+    // MARK: - Login
 
     func login() async {
         guard !username.isEmpty, !password.isEmpty else {
@@ -36,12 +38,16 @@ final class AuthMicroUIViewModel {
 
         do {
             let token = try await repository.login(username: username, password: password)
-            currentToken = token
-            isLoggedIn = true
-
-            // Register the live token provider into the shared container
             let provider = LiveAuthTokenProvider(token: token, repository: repository)
             Container.shared.authTokenProvider.register { provider }
+
+            // Persist token to Keychain
+            OwlsKeychain.shared.save(token.accessToken, forKey: OwlsKeychain.Keys.accessToken)
+            OwlsKeychain.shared.save(token.refreshToken, forKey: OwlsKeychain.Keys.refreshToken)
+
+            isLoggedIn = true
+            OwlsAnalytics.track(.buttonTapped("Sign In", screen: "Auth"))
+            OwlsEventBus.shared.post(.userLoggedIn)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -49,40 +55,30 @@ final class AuthMicroUIViewModel {
         isLoading = false
     }
 
-    func logout() async {
-        isLoading = true
+    // MARK: - Signup
 
-        if let token = currentToken {
-            try? await repository.logout(token: token.accessToken)
+    func signup() async {
+        guard !signupName.isEmpty, !signupEmail.isEmpty, !signupPassword.isEmpty else {
+            errorMessage = "Please fill all fields"
+            return
         }
-
-        currentToken = nil
-        isLoggedIn = false
-        username = ""
-        password = ""
-
-        // Clear the token provider
-        Container.shared.authTokenProvider.register { nil }
-
-        isLoading = false
-    }
-
-    func refreshToken() async {
-        guard let token = currentToken else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
-            let newToken = try await repository.refreshToken(token.refreshToken)
-            currentToken = newToken
-
-            let provider = LiveAuthTokenProvider(token: newToken, repository: repository)
+            let token = try await repository.login(username: signupEmail, password: signupPassword)
+            let provider = LiveAuthTokenProvider(token: token, repository: repository)
             Container.shared.authTokenProvider.register { provider }
+
+            OwlsKeychain.shared.save(token.accessToken, forKey: OwlsKeychain.Keys.accessToken)
+            OwlsKeychain.shared.save(token.refreshToken, forKey: OwlsKeychain.Keys.refreshToken)
+
+            isLoggedIn = true
+            OwlsAnalytics.track(.buttonTapped("Sign Up", screen: "Auth"))
+            OwlsEventBus.shared.post(.userLoggedIn)
         } catch {
             errorMessage = error.localizedDescription
-            // Force logout on refresh failure
-            await logout()
         }
 
         isLoading = false
@@ -91,7 +87,7 @@ final class AuthMicroUIViewModel {
 
 // MARK: - Live Token Provider
 
-private final class LiveAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
+final class LiveAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
 
     private var currentToken: AuthToken
     private let repository: AuthRepository
@@ -113,6 +109,7 @@ private final class LiveAuthTokenProvider: AuthTokenProvider, @unchecked Sendabl
     func refreshToken() async throws -> String {
         let newToken = try await repository.refreshToken(currentToken.refreshToken)
         currentToken = newToken
+        OwlsEventBus.shared.post(.tokenRefreshed)
         return newToken.accessToken
     }
 }

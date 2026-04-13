@@ -2,98 +2,88 @@ import SwiftUI
 import MicroUICore
 import Factory
 
-// MARK: - Root View
+// MARK: - Auth State (observable, listens to event bus)
+
+@Observable
+final class AppAuthState {
+    var isLoggedIn = false
+
+    init() {
+        // Check if session was restored from Keychain at boot
+        isLoggedIn = Container.shared.authTokenProvider() != nil
+            || OwlsKeychain.shared.exists(OwlsKeychain.Keys.accessToken)
+
+        OwlsEventBus.shared.on("user.logged_in") { [weak self] _ in
+            DispatchQueue.main.async { self?.isLoggedIn = true }
+        }
+
+        OwlsEventBus.shared.on("user.logged_out") { [weak self] _ in
+            DispatchQueue.main.async { self?.isLoggedIn = false }
+        }
+    }
+}
+
+// MARK: - Root View (Auth Gate)
 
 struct RootView: View {
 
+    @State private var authState = AppAuthState()
+    @Injected(\.authScreenBuilder) private var authScreenBuilder
+    @Injected(\.homeScreenBuilder) private var homeScreenBuilder
+    @Injected(\.profileScreenBuilder) private var profileScreenBuilder
+
     var body: some View {
+        Group {
+            if authState.isLoggedIn {
+                mainApp
+            } else {
+                authScreen
+            }
+        }
+    }
+
+    // MARK: - Auth Screen
+
+    @ViewBuilder
+    private var authScreen: some View {
+        if let builder = authScreenBuilder {
+            builder.buildScreen()
+        } else {
+            ContentUnavailableView("Auth Unavailable", systemImage: "lock.slash")
+        }
+    }
+
+    // MARK: - Main App
+
+    private var mainApp: some View {
         TabView {
-            Tab("Home", systemImage: "house.fill") {
-                DashboardView()
+            Tab("Stories", systemImage: "book.fill") {
+                homeTab
             }
 
             Tab("Profile", systemImage: "person.fill") {
-                ProfileTabView()
+                profileTab
             }
         }
     }
-}
 
-// MARK: - Dashboard Tab
+    // MARK: - Tabs
 
-private struct DashboardView: View {
-
-    @Injected(\.homeScreenBuilder) private var homeScreenBuilder
-    @Injected(\.profileScreenBuilder) private var profileScreenBuilder
-    @Injected(\.authScreenBuilder) private var authScreenBuilder
-    @Injected(\.homeNavigationCoordinator) private var homeCoordinator
-    @Injected(\.profileNavigationCoordinator) private var profileCoordinator
-    @Injected(\.authNavigationCoordinator) private var authCoordinator
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: OwlsSpacing.lg) {
-                    // MARK: Tiles
-                    TileGrid()
-
-                    Spacer()
-                }
-                .padding(OwlsSpacing.lg)
-            }
-            .navigationTitle("Dashboard")
-            .fullScreenCover(isPresented: Bindable(homeCoordinator).isPresented) {
-                homeScreenBuilder?.buildScreen()
-            }
-            .fullScreenCover(isPresented: Bindable(profileCoordinator).isPresented) {
-                profileScreenBuilder?.buildScreen()
-            }
-            .fullScreenCover(isPresented: Bindable(authCoordinator).isPresented) {
-                authScreenBuilder?.buildScreen()
-            }
+    @ViewBuilder
+    private var homeTab: some View {
+        if let builder = homeScreenBuilder {
+            builder.buildScreen()
+        } else {
+            ContentUnavailableView("Home Unavailable", systemImage: "house.slash")
         }
     }
-}
 
-// MARK: - Profile Tab (direct screen, no coordinator)
-
-private struct ProfileTabView: View {
-
-    @Injected(\.profileScreenBuilder) private var profileScreenBuilder
-
-    var body: some View {
+    @ViewBuilder
+    private var profileTab: some View {
         if let builder = profileScreenBuilder {
             builder.buildScreen()
         } else {
-            ContentUnavailableView(
-                "Profile Unavailable",
-                systemImage: "person.crop.circle.badge.xmark"
-            )
-        }
-    }
-}
-
-// MARK: - Tile Grid
-
-private struct TileGrid: View {
-
-    @Injected(\.homeTileBuilder) private var homeTileBuilder
-    @Injected(\.profileTileBuilder) private var profileTileBuilder
-    @Injected(\.authTileBuilder) private var authTileBuilder
-
-    private var tiles: [AnyView] {
-        [authTileBuilder, homeTileBuilder, profileTileBuilder]
-            .compactMap { $0?.buildTile() }
-    }
-
-    var body: some View {
-        LazyVGrid(
-            columns: [GridItem(.flexible()), GridItem(.flexible())],
-            spacing: OwlsSpacing.lg
-        ) {
-            ForEach(Array(tiles.enumerated()), id: \.offset) { _, tile in
-                tile
-            }
+            ContentUnavailableView("Profile Unavailable", systemImage: "person.crop.circle.badge.xmark")
         }
     }
 }

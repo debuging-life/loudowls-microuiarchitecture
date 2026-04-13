@@ -19,6 +19,22 @@ struct ProfileView: View {
                 }
         }
         .task { await viewModel.loadProfile() }
+        // MARK: Custom Logout Confirmation Dialog
+        .owlsSheet(isPresented: $viewModel.isLogoutConfirmPresented, detents: [.medium]) {
+            OwlsConfirmationSheet(
+                title: "Sign Out",
+                message: "Are you sure you want to sign out? You'll need to log in again to access your stories.",
+                confirmTitle: "Sign Out",
+                confirmRole: .destructive,
+                onConfirm: {
+                    viewModel.logout()
+                },
+                onCancel: {
+                    viewModel.isLogoutConfirmPresented = false
+                }
+            )
+        }
+        .trackScreen("Profile", module: "FeatureProfileMicroUI")
     }
 
     // MARK: - Content
@@ -26,32 +42,25 @@ struct ProfileView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading {
-            ProgressView("Loading profile…")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            OwlsLoadingView("Loading profile…")
         } else if let profile = viewModel.profile {
             profileContent(profile)
         } else if let error = viewModel.errorMessage {
-            ContentUnavailableView(
-                "Something went wrong",
-                systemImage: "exclamationmark.triangle",
-                description: Text(error)
-            )
+            OwlsEmptyState(
+                icon: "exclamationmark.triangle",
+                title: "Something went wrong",
+                description: error,
+                actionTitle: "Retry"
+            ) { Task { await viewModel.loadProfile() } }
         }
     }
 
     private func profileContent(_ profile: UserProfile) -> some View {
         List {
-            // MARK: Avatar Section
+            // MARK: Avatar
             Section {
                 VStack(spacing: OwlsSpacing.sm) {
-                    ZStack {
-                        Circle()
-                            .fill(OwlsColor.primary)
-                            .frame(width: 80, height: 80)
-                        Text(profile.avatarInitials)
-                            .font(OwlsTypography.title)
-                            .foregroundStyle(.white)
-                    }
+                    OwlsAvatar(.initials(profile.avatarInitials), size: .large)
 
                     Text("\(profile.firstName) \(profile.lastName)")
                         .font(OwlsTypography.title)
@@ -60,18 +69,28 @@ struct ProfileView: View {
                 .padding(.vertical, OwlsSpacing.md)
             }
 
-            // MARK: Info Section
+            // MARK: Contact Info
             Section("Contact Info") {
                 LabeledContent("Email", value: profile.email)
                 LabeledContent("Phone", value: profile.phone)
             }
 
-            // MARK: Edit
+            // MARK: Edit Profile — push navigation
             Section {
                 Button {
                     path.append(FeatureProfileMicroUIRouter.editProfile(profile))
                 } label: {
                     Label("Edit Profile", systemImage: "pencil")
+                }
+            }
+
+            // MARK: Logout — custom confirmation sheet
+            Section {
+                Button(role: .destructive) {
+                    viewModel.isLogoutConfirmPresented = true
+                } label: {
+                    Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        .foregroundStyle(.red)
                 }
             }
         }

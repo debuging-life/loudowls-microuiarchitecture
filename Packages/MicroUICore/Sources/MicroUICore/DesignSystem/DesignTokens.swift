@@ -4,8 +4,8 @@ import UIKit
 // MARK: - Colors
 
 public enum OwlsColor {
-    public static let primary = Color(red: 0.0, green: 0.42, blue: 0.33)
-    public static let secondary = Color(red: 0.96, green: 0.58, blue: 0.11)
+    public static let primary = Color(hex: 0x5FA052)
+    public static let secondary = Color(hex: 0x040506)
 
     public static let background = Color(uiColor: .systemBackground)
     public static let secondaryBackground = Color(uiColor: .secondarySystemBackground)

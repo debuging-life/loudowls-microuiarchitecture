@@ -2,25 +2,25 @@ import Foundation
 import MicroUICore
 
 protocol HomeDataSource: Sendable {
-    func fetchItems() async throws -> [HomeItem]
+    func fetchStories() async throws -> [Story]
+    func createStory(title: String, author: String, summary: String) async throws -> Story
+    func deleteStory(id: String) async throws
 }
 
-// MARK: - Mock (used now)
+// MARK: - Mock
 
 struct MockHomeDataSource: HomeDataSource {
-    func fetchItems() async throws -> [HomeItem] {
+    func fetchStories() async throws -> [Story] {
+        try await Task.sleep(for: .milliseconds(500))
+        return Story.mock
+    }
+
+    func createStory(title: String, author: String, summary: String) async throws -> Story {
+        try await Task.sleep(for: .milliseconds(400))
+        return Story(id: UUID().uuidString, title: title, author: author, summary: summary, coverIcon: "book.fill", readTime: 5, isFavorite: false)
+    }
+
+    func deleteStory(id: String) async throws {
         try await Task.sleep(for: .milliseconds(300))
-        return HomeItem.mock
     }
 }
-
-// MARK: - Live (swap in when API is ready)
-//
-// final class LiveHomeDataSource: OwlsBaseService, HomeDataSource {
-//     func fetchItems() async throws -> [HomeItem] {
-//         try await request(HomeAPI.listAccounts)
-//         // ✅ Auth token injected automatically
-//         // ✅ URL built via URLComponents from HomeAPI enum
-//         // ✅ 401 → auto-refresh → retry
-//     }
-// }

@@ -6,9 +6,6 @@ public struct AuthMicroUIConfig: MicroUIRegistration {
     public init() {}
 
     public func registerMicroUI() {
-        Container.shared.authTileBuilder.register {
-            AuthMicroUITileBuilder()
-        }
         Container.shared.authScreenBuilder.register {
             AuthMicroUIScreenBuilder()
         }

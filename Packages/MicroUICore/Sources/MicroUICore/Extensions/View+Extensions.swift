@@ -1,5 +1,20 @@
 import SwiftUI
 
+// MARK: - Color + Hex
+
+extension Color {
+    public init(hex: UInt, opacity: Double = 1.0) {
+        self.init(
+            red: Double((hex >> 16) & 0xFF) / 255.0,
+            green: Double((hex >> 8) & 0xFF) / 255.0,
+            blue: Double(hex & 0xFF) / 255.0,
+            opacity: opacity
+        )
+    }
+}
+
+// MARK: - View Extensions
+
 extension View {
     public func owlsCardStyle() -> some View {
         padding(OwlsSpacing.lg)

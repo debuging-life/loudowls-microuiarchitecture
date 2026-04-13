@@ -3,19 +3,19 @@ import MicroUICore
 
 enum AuthMicroUIRouter: OwlsRouter {
 
-    case tokenDemo
+    case placeholder
 
     var id: String {
         switch self {
-        case .tokenDemo: "auth-token-demo"
+        case .placeholder: "auth-placeholder"
         }
     }
 
     @ViewBuilder
     func resolveViewForRoute() -> some View {
         switch self {
-        case .tokenDemo:
-            TokenDemoView()
+        case .placeholder:
+            EmptyView()
         }
     }
 }

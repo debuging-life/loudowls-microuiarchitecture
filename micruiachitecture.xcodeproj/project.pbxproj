@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C18B15F337F25EAD728E56E /* StoryLibraryMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 468D5BC0CBAFDBF94C42F52D /* StoryLibraryMicroUI */; };
 		486F3047AEF9FA2422FC7C35 /* AuthMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 21FB480FEDF479A50E9C48DF /* AuthMicroUI */; };
 		AA0001012F8C3D4300196F4F /* MicroUICore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003012F8C3D4300196F4F /* MicroUICore */; };
 		AA0001022F8C3D4300196F4F /* FeatureHomeMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003022F8C3D4300196F4F /* FeatureHomeMicroUI */; };
@@ -35,7 +34,6 @@
 				AA0001022F8C3D4300196F4F /* FeatureHomeMicroUI in Frameworks */,
 				AA0001032F8C3D4300196F4F /* FeatureProfileMicroUI in Frameworks */,
 				486F3047AEF9FA2422FC7C35 /* AuthMicroUI in Frameworks */,
-				0C18B15F337F25EAD728E56E /* StoryLibraryMicroUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +80,6 @@
 				AA0003022F8C3D4300196F4F /* FeatureHomeMicroUI */,
 				AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */,
 				21FB480FEDF479A50E9C48DF /* AuthMicroUI */,
-				468D5BC0CBAFDBF94C42F52D /* StoryLibraryMicroUI */,
 			);
 			productName = micruiachitecture;
 			productReference = 064DC3F02F8C3D4300196F4F /* micruiachitecture.app */;
@@ -117,7 +114,6 @@
 				AA0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/FeatureHomeMicroUI" */,
 				AA0002032F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/FeatureProfileMicroUI" */,
 				306806C777573857C234DF20 /* XCLocalSwiftPackageReference "Packages/AuthMicroUI" */,
-				D996944DA04EB0A9AF1FB582 /* XCLocalSwiftPackageReference "Packages/StoryLibraryMicroUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 064DC3F12F8C3D4300196F4F /* Products */;
@@ -375,20 +371,12 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeatureProfileMicroUI;
 		};
-		D996944DA04EB0A9AF1FB582 /* XCLocalSwiftPackageReference "Packages/StoryLibraryMicroUI" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/StoryLibraryMicroUI;
-		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		21FB480FEDF479A50E9C48DF /* AuthMicroUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AuthMicroUI;
-		};
-		468D5BC0CBAFDBF94C42F52D /* StoryLibraryMicroUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = StoryLibraryMicroUI;
 		};
 		AA0003012F8C3D4300196F4F /* MicroUICore */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -120,12 +120,30 @@ FeatureNameMicroUI/
 
 ---
 
-## Creating a New Module
+## CLI Tool — owls-microui
 
-### One Command — Zero Manual Steps
+The CLI is distributed as a **compiled binary via Homebrew** from a private repo. Source code is never exposed.
+
+### Install (one time)
 
 ```bash
-./Tools/create-microui.sh Transfers
+# Prerequisites
+brew install gh
+gh auth login
+
+# Add GitHub token to shell
+echo 'export HOMEBREW_GITHUB_API_TOKEN=$(gh auth token)' >> ~/.zshrc
+source ~/.zshrc
+
+# Install
+brew tap debuging-life/owls-cli git@github-pardipbhatti8791:debuging-life/homebrew-owls-cli.git
+brew install owls-microui
+```
+
+### Creating a New Module
+
+```bash
+owls-microui create Transfers
 ```
 
 **Interactive prompts:**
@@ -134,7 +152,7 @@ FeatureNameMicroUI/
 - Tile description text
 
 **What it does automatically:**
-1. Scaffolds `Packages/TransfersMicroUI/` with all files
+1. Scaffolds `Packages/TransfersMicroUI/` with 16 files
 2. Generates `TransfersAPI` route enum with CRUD operations
 3. Generates `TransfersLocalizedString` with English keys
 4. Generates test target with 3 starter tests
@@ -142,11 +160,36 @@ FeatureNameMicroUI/
 6. Adds import + config to `MicroUIBootstrap.swift`
 7. Updates `project.pbxproj` (package reference + framework link)
 
-**Additional options:**
+### Removing a Module
+
 ```bash
-./Tools/create-microui.sh --dry-run BillPay    # preview without writing
-./Tools/create-microui.sh -h                    # help
+owls-microui remove Transfers
 ```
+
+Removes all files, DI slots, bootstrap registration, and Xcode references. Requires typing the module name to confirm.
+
+### Other Commands
+
+```bash
+owls-microui create --dry-run BillPay  # preview without writing
+owls-microui remove --dry-run BillPay  # preview without deleting
+owls-microui remove --force BillPay    # skip confirmation
+owls-microui --help
+```
+
+### Update
+
+```bash
+brew upgrade owls-microui
+```
+
+### Security
+
+| Layer | Protection |
+|---|---|
+| SSH key | `brew tap` fails without repo access |
+| GitHub token | `brew install` fails without valid token |
+| Compiled binary | Source code never exposed to developers |
 
 ---
 

@@ -1,7 +1,7 @@
 import Foundation
 
 protocol HomeRepository: Sendable {
-    func loadStories() async throws -> [Story]
+    func loadStories(page: Int, limit: Int) async throws -> [Story]
     func createStory(title: String, author: String, summary: String) async throws -> Story
     func deleteStory(id: String) async throws
 }
@@ -13,8 +13,8 @@ struct DefaultHomeRepository: HomeRepository {
         self.dispatcher = dispatcher
     }
 
-    func loadStories() async throws -> [Story] {
-        try await dispatcher.fetchStories()
+    func loadStories(page: Int, limit: Int) async throws -> [Story] {
+        try await dispatcher.fetchStories(page: page, limit: limit)
     }
 
     func createStory(title: String, author: String, summary: String) async throws -> Story {

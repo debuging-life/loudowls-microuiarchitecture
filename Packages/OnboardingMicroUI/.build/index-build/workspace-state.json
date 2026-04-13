@@ -1,0 +1,61 @@
+{
+  "object" : {
+    "artifacts" : [
+
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "factory",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/hmlongco/Factory.git",
+          "name" : "Factory"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "ccc898f21992ebc130bc04cc197460a5ae230bcf",
+            "version" : "2.5.3"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Factory"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "kingfisher",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/onevcat/Kingfisher.git",
+          "name" : "Kingfisher"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "c152c1915f60c51e4afa0752656993ee5b3c63db",
+            "version" : "8.8.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Kingfisher"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "microuicore",
+          "kind" : "fileSystem",
+          "location" : "/Users/pardipbhatti/Desktop/micruiachitecture/Packages/MicroUICore",
+          "name" : "MicroUICore"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/pardipbhatti/Desktop/micruiachitecture/Packages/MicroUICore"
+        },
+        "subpath" : "microuicore"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

@@ -66,7 +66,10 @@
       "Bash(grep -E \"\\\\.swift$\")",
       "Bash(git commit -m 'Upgrade navigation + remove AppRouter:*)",
       "Bash(shasum -a 256 /tmp/owls-v230/*)",
-      "Bash(git commit -m 'Update Formula to v2.3.0 with new asset IDs and SHA256:*)"
+      "Bash(git commit -m 'Update Formula to v2.3.0 with new asset IDs and SHA256:*)",
+      "Bash(xcodebuild -scheme micruiachitecture -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build)",
+      "Bash(xcodebuild -scheme micruiachitecture -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.2' build)",
+      "Bash(xcodebuild -scheme micruiachitecture -destination 'id=30626B6A-10DA-4ECF-B3EF-FF9D5EC66D51' build)"
     ]
   }
 }

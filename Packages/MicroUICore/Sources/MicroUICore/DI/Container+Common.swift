@@ -7,6 +7,8 @@ extension Container {
     public var homeScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var profileScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var authScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
+    public var onboardingScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
+    public var settingsScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
 }
 
 // MARK: - Navigation Coordinators

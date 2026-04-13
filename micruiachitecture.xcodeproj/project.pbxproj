@@ -11,6 +11,8 @@
 		AA0001012F8C3D4300196F4F /* MicroUICore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003012F8C3D4300196F4F /* MicroUICore */; };
 		AA0001022F8C3D4300196F4F /* FeatureHomeMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003022F8C3D4300196F4F /* FeatureHomeMicroUI */; };
 		AA0001032F8C3D4300196F4F /* FeatureProfileMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */; };
+		BB0001012F8C3D4300196F4F /* OnboardingMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB0003012F8C3D4300196F4F /* OnboardingMicroUI */; };
+		BB0001022F8C3D4300196F4F /* SettingsMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB0003022F8C3D4300196F4F /* SettingsMicroUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 				AA0001022F8C3D4300196F4F /* FeatureHomeMicroUI in Frameworks */,
 				AA0001032F8C3D4300196F4F /* FeatureProfileMicroUI in Frameworks */,
 				486F3047AEF9FA2422FC7C35 /* AuthMicroUI in Frameworks */,
+				BB0001012F8C3D4300196F4F /* OnboardingMicroUI in Frameworks */,
+				BB0001022F8C3D4300196F4F /* SettingsMicroUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +84,8 @@
 				AA0003022F8C3D4300196F4F /* FeatureHomeMicroUI */,
 				AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */,
 				21FB480FEDF479A50E9C48DF /* AuthMicroUI */,
+				BB0003012F8C3D4300196F4F /* OnboardingMicroUI */,
+				BB0003022F8C3D4300196F4F /* SettingsMicroUI */,
 			);
 			productName = micruiachitecture;
 			productReference = 064DC3F02F8C3D4300196F4F /* micruiachitecture.app */;
@@ -114,6 +120,8 @@
 				AA0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/FeatureHomeMicroUI" */,
 				AA0002032F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/FeatureProfileMicroUI" */,
 				306806C777573857C234DF20 /* XCLocalSwiftPackageReference "Packages/AuthMicroUI" */,
+				BB0002012F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/OnboardingMicroUI" */,
+				BB0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/SettingsMicroUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 064DC3F12F8C3D4300196F4F /* Products */;
@@ -371,6 +379,14 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeatureProfileMicroUI;
 		};
+		BB0002012F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/OnboardingMicroUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/OnboardingMicroUI;
+		};
+		BB0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/SettingsMicroUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SettingsMicroUI;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -389,6 +405,14 @@
 		AA0003032F8C3D4300196F4F /* FeatureProfileMicroUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FeatureProfileMicroUI;
+		};
+		BB0003012F8C3D4300196F4F /* OnboardingMicroUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OnboardingMicroUI;
+		};
+		BB0003022F8C3D4300196F4F /* SettingsMicroUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SettingsMicroUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

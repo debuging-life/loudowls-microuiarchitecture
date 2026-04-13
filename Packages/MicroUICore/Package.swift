@@ -9,12 +9,13 @@ let package = Package(
         .library(name: "MicroUICore", targets: ["MicroUICore"])
     ],
     dependencies: [
-        .package(url: "https://github.com/hmlongco/Factory.git", from: "2.4.0")
+        .package(url: "https://github.com/hmlongco/Factory.git", from: "2.4.0"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0")
     ],
     targets: [
         .target(
             name: "MicroUICore",
-            dependencies: ["Factory"]
+            dependencies: ["Factory", "Kingfisher"]
         )
     ]
 )

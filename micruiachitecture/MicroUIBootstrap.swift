@@ -2,13 +2,17 @@ import MicroUICore
 import FeatureHomeMicroUI
 import FeatureProfileMicroUI
 import AuthMicroUI
+import OnboardingMicroUI
+import SettingsMicroUI
 
 enum MicroUIBootstrap {
 
     private static let modules: [MicroUIRegistration] = [
         FeatureHomeMicroUIConfig(),
         FeatureProfileMicroUIConfig(),
-        AuthMicroUIConfig()
+        AuthMicroUIConfig(),
+        OnboardingMicroUIConfig(),
+        SettingsMicroUIConfig()
     ]
 
     static func register() {
@@ -37,8 +41,6 @@ enum MicroUIBootstrap {
         }
     }
 
-    // MARK: - Restore Session from Keychain
-
     private static func restoreSession() {
         guard let accessToken = OwlsKeychain.shared.string(forKey: OwlsKeychain.Keys.accessToken),
               let refreshToken = OwlsKeychain.shared.string(forKey: OwlsKeychain.Keys.refreshToken) else {
@@ -49,8 +51,6 @@ enum MicroUIBootstrap {
         Container.shared.authTokenProvider.register { token }
     }
 }
-
-// MARK: - Restored Token Provider
 
 private final class KeychainRestoredTokenProvider: AuthTokenProvider, @unchecked Sendable {
     private var accessToken: String
@@ -63,12 +63,6 @@ private final class KeychainRestoredTokenProvider: AuthTokenProvider, @unchecked
 
     var isAuthenticated: Bool { true }
 
-    func token() async throws -> String {
-        accessToken
-    }
-
-    func refreshToken() async throws -> String {
-        // In production: call refresh API, update keychain
-        accessToken
-    }
+    func token() async throws -> String { accessToken }
+    func refreshToken() async throws -> String { accessToken }
 }

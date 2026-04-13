@@ -1,0 +1,13 @@
+{
+    "Simulator Target Bundle": "aap.loudowls.micruiachitecture",
+    "aps": {
+        "alert": {
+            "title": "New Story Available!",
+            "body": "The Wise Owl Part 2 is now available to read."
+        },
+        "badge": 1,
+        "sound": "default"
+    },
+    "module": "home",
+    "path": "detail/1"
+}

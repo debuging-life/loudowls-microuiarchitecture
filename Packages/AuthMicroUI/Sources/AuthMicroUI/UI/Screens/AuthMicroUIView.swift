@@ -71,6 +71,20 @@ struct AuthMicroUIView: View {
             .overlay { if viewModel.isLoading { ProgressView() } }
 
             OwlsAlert(.info, message: "Demo: any username (3+) and password (4+)")
+
+            // MARK: Social Login Divider
+            socialDivider
+
+            AppleSignInButton { userId, email in
+                Task { await viewModel.socialLogin(provider: "apple", userId: userId, email: email) }
+            } onError: { error in
+                viewModel.errorMessage = error
+            }
+
+            GoogleSignInButton {
+                // TODO: Integrate GoogleSignIn SDK
+                viewModel.errorMessage = "Google Sign-In requires GoogleSignIn SDK integration"
+            }
         }
     }
 
@@ -87,6 +101,26 @@ struct AuthMicroUIView: View {
             }
             .disabled(viewModel.isLoading)
             .overlay { if viewModel.isLoading { ProgressView() } }
+
+            socialDivider
+
+            AppleSignInButton { userId, email in
+                Task { await viewModel.socialLogin(provider: "apple", userId: userId, email: email) }
+            } onError: { error in
+                viewModel.errorMessage = error
+            }
+        }
+    }
+
+    // MARK: - Divider
+
+    private var socialDivider: some View {
+        HStack {
+            Rectangle().fill(OwlsColor.secondaryLabel.opacity(0.3)).frame(height: 1)
+            Text("or")
+                .font(OwlsTypography.caption)
+                .foregroundStyle(OwlsColor.secondaryLabel)
+            Rectangle().fill(OwlsColor.secondaryLabel.opacity(0.3)).frame(height: 1)
         }
     }
 }

@@ -1,0 +1,12 @@
+{
+    "Simulator Target Bundle": "aap.loudowls.micruiachitecture",
+    "aps": {
+        "alert": {
+            "title": "Profile Update",
+            "body": "Your profile has been verified successfully."
+        },
+        "sound": "default"
+    },
+    "module": "profile",
+    "path": ""
+}

@@ -14,7 +14,7 @@ final class AuthMicroUIViewModel {
     var signupEmail = ""
     var signupPassword = ""
     private(set) var isLoading = false
-    private(set) var errorMessage: String?
+    var errorMessage: String?
     private(set) var isLoggedIn = false
 
     // MARK: - Dependencies
@@ -76,6 +76,30 @@ final class AuthMicroUIViewModel {
 
             isLoggedIn = true
             OwlsAnalytics.track(.buttonTapped("Sign Up", screen: "Auth"))
+            OwlsEventBus.shared.post(.userLoggedIn)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isLoading = false
+    }
+
+    // MARK: - Social Login
+
+    func socialLogin(provider: String, userId: String, email: String) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            let token = try await repository.login(username: email, password: userId)
+            let tokenProvider = LiveAuthTokenProvider(token: token, repository: repository)
+            Container.shared.authTokenProvider.register { tokenProvider }
+
+            OwlsKeychain.shared.save(token.accessToken, forKey: OwlsKeychain.Keys.accessToken)
+            OwlsKeychain.shared.save(token.refreshToken, forKey: OwlsKeychain.Keys.refreshToken)
+
+            isLoggedIn = true
+            OwlsAnalytics.track(.buttonTapped("\(provider) Sign In", screen: "Auth"))
             OwlsEventBus.shared.post(.userLoggedIn)
         } catch {
             errorMessage = error.localizedDescription

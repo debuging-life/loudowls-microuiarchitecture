@@ -14,71 +14,82 @@ struct HomeListView: View {
     var body: some View {
         NavigationStack(path: $path) {
             Group {
-                if viewModel.isLoading {
+                switch viewModel.paginator.state {
+                case .loading:
                     OwlsLoadingView("Loading stories…")
-                } else if let error = viewModel.errorMessage {
+                case .empty:
+                    OwlsEmptyState(icon: "book", title: "No Stories Yet", description: "Tap + to create your first story.")
+                case .error(let message):
                     OwlsEmptyState(
                         icon: "exclamationmark.triangle",
                         title: "Something went wrong",
-                        description: error,
+                        description: message,
                         actionTitle: "Retry"
-                    ) { Task { await viewModel.loadStories() } }
-                } else if viewModel.stories.isEmpty {
-                    OwlsEmptyState(icon: "book", title: "No Stories Yet", description: "Tap + to create your first story.")
-                } else {
+                    ) { Task { await viewModel.paginator.refresh() } }
+                default:
                     storyList
                 }
             }
             .navigationTitle("Stories")
-            // MARK: Push — detail screen
             .navigationDestination(for: FeatureHomeMicroUIRouter.self) { route in
                 route.resolveViewForRoute()
             }
             .toolbar {
-                // MARK: Sheet — create story
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { viewModel.isCreateSheetPresented = true } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
-            // MARK: Sheet presentation
             .sheet(isPresented: $viewModel.isCreateSheetPresented) {
                 StoryCreateSheet(viewModel: viewModel)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             }
-            // MARK: Fullscreen presentation
             .fullScreenCover(item: $fullScreenStory) { story in
                 StoryFullScreenView(story: story)
             }
         }
-        .task { await viewModel.loadStories() }
+        .task { await viewModel.paginator.loadFirstPage() }
+        .refreshable { await viewModel.paginator.refresh() }
         .trackScreen("StoryList", module: "FeatureHomeMicroUI")
     }
 
-    // MARK: - Story List
+    // MARK: - Story List with Infinite Scroll
 
     private var storyList: some View {
         List {
-            ForEach(viewModel.stories) { story in
+            ForEach(viewModel.paginator.items) { story in
                 Button {
-                    // Navigation: push to detail screen
                     path.append(FeatureHomeMicroUIRouter.detail(story))
                 } label: {
                     StoryRow(story: story) {
-                        // Fullscreen: open reader
                         fullScreenStory = story
                     } onFavorite: {
                         viewModel.toggleFavorite(id: story.id)
                     }
                 }
+                .task {
+                    // Infinite scroll — load next page when near bottom
+                    await viewModel.paginator.loadNextPageIfNeeded(currentItem: story)
+                }
             }
             .onDelete { indexSet in
                 for index in indexSet {
-                    let story = viewModel.stories[index]
+                    let story = viewModel.paginator.items[index]
                     Task { await viewModel.deleteStory(id: story.id) }
                 }
+            }
+
+            // Loading more spinner
+            if viewModel.paginator.state == .loadingMore {
+                HStack {
+                    Spacer()
+                    ProgressView("Loading more…")
+                        .padding()
+                    Spacer()
+                }
+                .listRowSeparator(.hidden)
             }
         }
         .listStyle(.plain)
@@ -94,7 +105,6 @@ private struct StoryRow: View {
 
     var body: some View {
         HStack(spacing: OwlsSpacing.md) {
-            // Cover Icon
             Image(systemName: story.coverIcon)
                 .font(.title2)
                 .foregroundStyle(OwlsColor.primary)
@@ -102,7 +112,6 @@ private struct StoryRow: View {
                 .background(OwlsColor.primary.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: OwlsRadius.md))
 
-            // Info
             VStack(alignment: .leading, spacing: OwlsSpacing.xxs) {
                 Text(story.title)
                     .font(OwlsTypography.headline)
@@ -117,14 +126,12 @@ private struct StoryRow: View {
 
             Spacer()
 
-            // Favorite
             Button { onFavorite() } label: {
                 Image(systemName: story.isFavorite ? "heart.fill" : "heart")
                     .foregroundStyle(story.isFavorite ? .red : OwlsColor.secondaryLabel)
             }
             .buttonStyle(.plain)
 
-            // Fullscreen
             Button { onFullScreen() } label: {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
                     .font(.caption)

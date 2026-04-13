@@ -2,14 +2,13 @@ import SwiftUI
 import MicroUICore
 import Factory
 
-// MARK: - Auth State (observable, listens to event bus)
+// MARK: - Auth State
 
 @Observable
 final class AppAuthState {
     var isLoggedIn = false
 
     init() {
-        // Check if session was restored from Keychain at boot
         isLoggedIn = Container.shared.authTokenProvider() != nil
             || OwlsKeychain.shared.exists(OwlsKeychain.Keys.accessToken)
 
@@ -23,26 +22,45 @@ final class AppAuthState {
     }
 }
 
-// MARK: - Root View (Auth Gate)
+// MARK: - Root View
 
 struct RootView: View {
 
     @State private var authState = AppAuthState()
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @AppStorage("owls.settings.darkMode") private var isDarkMode = false
+
     @Injected(\.authScreenBuilder) private var authScreenBuilder
     @Injected(\.homeScreenBuilder) private var homeScreenBuilder
     @Injected(\.profileScreenBuilder) private var profileScreenBuilder
+    @Injected(\.settingsScreenBuilder) private var settingsScreenBuilder
+    @Injected(\.onboardingScreenBuilder) private var onboardingScreenBuilder
 
     var body: some View {
         Group {
-            if authState.isLoggedIn {
+            if !hasSeenOnboarding {
+                onboardingScreen
+            } else if authState.isLoggedIn {
                 mainApp
             } else {
                 authScreen
             }
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 
-    // MARK: - Auth Screen
+    // MARK: - Onboarding
+
+    @ViewBuilder
+    private var onboardingScreen: some View {
+        if let builder = onboardingScreenBuilder {
+            builder.buildScreen()
+        } else {
+            Color.clear.onAppear { hasSeenOnboarding = true }
+        }
+    }
+
+    // MARK: - Auth
 
     @ViewBuilder
     private var authScreen: some View {
@@ -64,6 +82,10 @@ struct RootView: View {
             Tab("Profile", systemImage: "person.fill") {
                 profileTab
             }
+
+            Tab("Settings", systemImage: "gearshape.fill") {
+                settingsTab
+            }
         }
     }
 
@@ -84,6 +106,15 @@ struct RootView: View {
             builder.buildScreen()
         } else {
             ContentUnavailableView("Profile Unavailable", systemImage: "person.crop.circle.badge.xmark")
+        }
+    }
+
+    @ViewBuilder
+    private var settingsTab: some View {
+        if let builder = settingsScreenBuilder {
+            builder.buildScreen()
+        } else {
+            ContentUnavailableView("Settings Unavailable", systemImage: "gearshape.slash")
         }
     }
 }

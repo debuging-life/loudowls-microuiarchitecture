@@ -59,7 +59,10 @@
       "Bash(shasum -a 256 /Users/pardipbhatti/Desktop/OwlsCLI/.build/release/owls-microui)",
       "Bash(git pull:*)",
       "Bash(git rebase:*)",
-      "Bash(gh release:*)"
+      "Bash(gh release:*)",
+      "Bash(git remote:*)",
+      "Bash(rm -f /Users/pardipbhatti/Desktop/micruiachitecture/.git/index.lock)",
+      "Bash(git commit -m 'Remove Tools, update README with Homebrew CLI:*)"
     ]
   }
 }

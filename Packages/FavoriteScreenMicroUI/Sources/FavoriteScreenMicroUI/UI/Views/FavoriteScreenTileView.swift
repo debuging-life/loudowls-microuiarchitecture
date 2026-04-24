@@ -1,30 +1,28 @@
 import SwiftUI
 import MicroUICore
 
+// MARK: - Tile View
+// Embeddable widget — drop into another module's screen via TileBuilder.
+
 struct FavoriteScreenTileView: View {
 
-    @Injected(\.favoritescreenNavigationCoordinator) private var coordinator
-
     var body: some View {
-        Button { coordinator.present() } label: {
-            VStack(spacing: OwlsSpacing.sm) {
-                Image(systemName: "square.grid.2x2")
-                    .font(.title)
-                    .foregroundStyle(OwlsColor.primary)
+        VStack(spacing: OwlsSpacing.sm) {
+            Image(systemName: "heart.fill")
+                .font(.title)
+                .foregroundStyle(OwlsColor.primary)
 
-                Text("FavoriteScreen")
-                    .font(OwlsTypography.headline)
-                    .foregroundStyle(OwlsColor.label)
+            Text("Favorites")
+                .font(OwlsTypography.headline)
+                .foregroundStyle(OwlsColor.label)
 
-                Text("View FavoriteScreen")
-                    .font(OwlsTypography.caption)
-                    .foregroundStyle(OwlsColor.secondaryLabel)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(OwlsSpacing.lg)
-            .background(OwlsColor.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: OwlsRadius.lg))
+            Text("View saved")
+                .font(OwlsTypography.caption)
+                .foregroundStyle(OwlsColor.secondaryLabel)
         }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .padding(OwlsSpacing.lg)
+        .background(OwlsColor.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: OwlsRadius.lg))
     }
 }

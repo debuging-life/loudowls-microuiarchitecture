@@ -14,6 +14,7 @@
 		BB0001012F8C3D4300196F4F /* OnboardingMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB0003012F8C3D4300196F4F /* OnboardingMicroUI */; };
 		BB0001022F8C3D4300196F4F /* SettingsMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB0003022F8C3D4300196F4F /* SettingsMicroUI */; };
 		0682D1BF64AC72F5266B3542 /* FavoriteScreenMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5BDFA2D607BE4430478DA59E /* FavoriteScreenMicroUI */; };
+		2DE81AAD2AEC691653415563 /* UnknowMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = F9C33EFE3EB1C85655B92CB8 /* UnknowMicroUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 				BB0001012F8C3D4300196F4F /* OnboardingMicroUI in Frameworks */,
 				BB0001022F8C3D4300196F4F /* SettingsMicroUI in Frameworks */,
 				0682D1BF64AC72F5266B3542 /* FavoriteScreenMicroUI in Frameworks */,
+				2DE81AAD2AEC691653415563 /* UnknowMicroUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +91,7 @@
 				BB0003012F8C3D4300196F4F /* OnboardingMicroUI */,
 				BB0003022F8C3D4300196F4F /* SettingsMicroUI */,
 				5BDFA2D607BE4430478DA59E /* FavoriteScreenMicroUI */,
+				F9C33EFE3EB1C85655B92CB8 /* UnknowMicroUI */,
 			);
 			productName = micruiachitecture;
 			productReference = 064DC3F02F8C3D4300196F4F /* micruiachitecture.app */;
@@ -126,6 +129,7 @@
 				BB0002012F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/OnboardingMicroUI" */,
 				BB0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/SettingsMicroUI" */,
 				DE6150966EB44289D7BD8FB2 /* XCLocalSwiftPackageReference "Packages/FavoriteScreenMicroUI" */,
+				2547453CEE17087DFFE2B8A8 /* XCLocalSwiftPackageReference "Packages/UnknowMicroUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 064DC3F12F8C3D4300196F4F /* Products */;
@@ -395,6 +399,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FavoriteScreenMicroUI;
 		};
+		2547453CEE17087DFFE2B8A8 /* XCLocalSwiftPackageReference "Packages/UnknowMicroUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/UnknowMicroUI;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -425,6 +433,10 @@
 		5BDFA2D607BE4430478DA59E /* FavoriteScreenMicroUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FavoriteScreenMicroUI;
+		};
+		F9C33EFE3EB1C85655B92CB8 /* UnknowMicroUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = UnknowMicroUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

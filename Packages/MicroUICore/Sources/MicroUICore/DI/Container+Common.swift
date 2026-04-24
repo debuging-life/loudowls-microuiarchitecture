@@ -1,7 +1,21 @@
 import Factory
 import SwiftUI
 
+// MARK: - Tile Builders
+// Small embeddable widgets that other modules can drop into their UI.
+
+extension Container {
+    public var homeTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var profileTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var authTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var onboardingTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var settingsTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var favoritescreenTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var unknowTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+}
+
 // MARK: - Screen Builders
+// Full screens presented via fullScreenCover or pushed onto NavigationStack.
 
 extension Container {
     public var homeScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
@@ -10,6 +24,7 @@ extension Container {
     public var onboardingScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var settingsScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var favoritescreenScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
+    public var unknowScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
 }
 
 // MARK: - Navigation Coordinators
@@ -28,6 +43,10 @@ extension Container {
     }
 
     public var favoritescreenNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
+        self { OwlsNavigationCoordinator() }.scope(.shared)
+    }
+
+    public var unknowNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
         self { OwlsNavigationCoordinator() }.scope(.shared)
     }
 }

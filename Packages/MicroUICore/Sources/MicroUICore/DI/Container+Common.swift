@@ -9,6 +9,7 @@ extension Container {
     public var authScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var onboardingScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var settingsScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
+    public var favoritescreenScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
 }
 
 // MARK: - Navigation Coordinators
@@ -23,6 +24,10 @@ extension Container {
     }
 
     public var authNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
+        self { OwlsNavigationCoordinator() }.scope(.shared)
+    }
+
+    public var favoritescreenNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
         self { OwlsNavigationCoordinator() }.scope(.shared)
     }
 }

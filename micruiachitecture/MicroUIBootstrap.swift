@@ -4,6 +4,7 @@ import FeatureProfileMicroUI
 import AuthMicroUI
 import OnboardingMicroUI
 import SettingsMicroUI
+import FavoriteScreenMicroUI
 
 enum MicroUIBootstrap {
 
@@ -12,7 +13,8 @@ enum MicroUIBootstrap {
         FeatureProfileMicroUIConfig(),
         AuthMicroUIConfig(),
         OnboardingMicroUIConfig(),
-        SettingsMicroUIConfig()
+        SettingsMicroUIConfig(),
+        FavoriteScreenMicroUIConfig()
     ]
 
     static func register() {

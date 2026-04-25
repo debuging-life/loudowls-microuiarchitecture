@@ -31,6 +31,13 @@ open class OwlsBaseService: @unchecked Sendable {
         _ route: some OwlsAPIRoute,
         baseURL: URL? = nil
     ) async throws -> T {
+        // ─── Mock Interception (DEBUG only) ──────────────────
+        #if DEBUG
+        if let mock = OwlsMockRegistry.shared.enabledMock(for: route.path, method: route.method) {
+            return try handleMock(mock)
+        }
+        #endif
+
         let base = baseURL ?? Container.shared.apiBaseURL()
         var urlRequest = route.toURLRequest(baseURL: base)
 
@@ -58,12 +65,45 @@ open class OwlsBaseService: @unchecked Sendable {
         }
     }
 
+    // MARK: - Mock Helper (DEBUG only)
+
+    #if DEBUG
+    private func handleMock<T: Decodable & Sendable>(_ mock: OwlsMockItem) throws -> T {
+        // Simulate network delay
+        Thread.sleep(forTimeInterval: 0.3)
+
+        // Simulate failure status codes
+        if let error = OwlsNetworkError.fromStatusCode(mock.statusCode) {
+            OwlsLogger.warning("[Mock] \(mock.id) → \(mock.statusCode) \(error.localizedDescription)", module: mock.module)
+            throw error
+        }
+
+        let data = try mock.loadJSON()
+        OwlsLogger.info("[Mock] \(mock.id) → \(mock.endpoint)", module: mock.module)
+
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            throw OwlsNetworkError.decodingFailed("Mock JSON decode failed: \(error.localizedDescription)")
+        }
+    }
+    #endif
+
     // MARK: - Request (no response body)
 
     public func requestVoid(
         _ route: some OwlsAPIRoute,
         baseURL: URL? = nil
     ) async throws {
+        #if DEBUG
+        if let mock = OwlsMockRegistry.shared.enabledMock(for: route.path, method: route.method) {
+            Thread.sleep(forTimeInterval: 0.3)
+            if let error = OwlsNetworkError.fromStatusCode(mock.statusCode) { throw error }
+            OwlsLogger.info("[Mock] \(mock.id) → \(mock.endpoint) (void)", module: mock.module)
+            return
+        }
+        #endif
+
         let base = baseURL ?? Container.shared.apiBaseURL()
         var urlRequest = route.toURLRequest(baseURL: base)
 

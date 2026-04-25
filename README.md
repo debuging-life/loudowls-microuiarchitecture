@@ -1,6 +1,40 @@
-# MicroUI Architecture
+# MicroUI Architecture (HooTales)
 
 A production-grade iOS app architecture where each feature is a fully self-contained module. Inspired by how large banking apps structure their codebase at scale.
+
+This repo is the **reference implementation** built around a children's storytelling app called **HooTales**. It demonstrates every pattern with real, working modules.
+
+---
+
+## Table of Contents
+
+1. [Architecture Overview](#architecture-overview)
+2. [Module Rules](#module-rules)
+3. [Module File Structure](#module-file-structure)
+4. [Default Modules (Demo App)](#default-modules-demo-app)
+5. [Creating a New Module — `owls-microui`](#creating-a-new-module)
+6. [Navigation](#navigation)
+7. [Factory DI](#factory-di)
+8. [Network Layer (BaseService + APIRoute)](#network-layer)
+9. [Mock Data System / Debug Drawer](#mock-data-system--debug-drawer)
+10. [Auth Token Sharing](#auth-token-sharing)
+11. [Analytics](#analytics)
+12. [Deep Linking](#deep-linking)
+13. [Push Notifications](#push-notifications)
+14. [Feature Flags](#feature-flags)
+15. [Event Bus](#event-bus)
+16. [Localization](#localization)
+17. [Logging](#logging)
+18. [Caching](#caching)
+19. [Pagination](#pagination)
+20. [Error Handler](#error-handler)
+21. [Security](#security)
+22. [Environment Config](#environment-config)
+23. [Image Loading (Kingfisher)](#image-loading)
+24. [ReusableUI Components](#reusableui-components)
+25. [Dark Mode](#dark-mode)
+26. [Testing](#testing)
+27. [Project Conventions](#project-conventions)
 
 ---
 
@@ -11,8 +45,8 @@ A production-grade iOS app architecture where each feature is a fully self-conta
 │                         App Shell                               │
 │  ┌────────────┐  ┌──────────────┐  ┌────────────┐  ┌────────┐  │
 │  │ Bootstrap   │  │  RootView    │  │ DeepLink   │  │ Feature│  │
-│  │ (registers  │  │  (TabView +  │  │ Router     │  │ Flags  │  │
-│  │  modules)   │  │  Dashboard)  │  │            │  │        │  │
+│  │ (registers  │  │  (Auth gate +│  │ Router     │  │ Flags  │  │
+│  │  modules)   │  │  TabView)    │  │            │  │        │  │
 │  └────────────┘  └──────────────┘  └────────────┘  └────────┘  │
 │         │                │                │              │      │
 │         ▼                ▼                ▼              ▼      │
@@ -32,55 +66,36 @@ A production-grade iOS app architecture where each feature is a fully self-conta
     └────────────┴──────────────┴──────────────┘
                          │
                          ▼
-         ┌───────────────────────────────┐
-         │         MicroUICore           │
-         │                               │
-         │  Protocols    Network         │
-         │  DI           Analytics       │
-         │  Navigation   DeepLink        │
-         │  DesignSystem FeatureFlags    │
-         │  ReusableUI   EventBus        │
-         │  Localization Logging         │
-         │  Security     Cache           │
-         └───────────────────────────────┘
+         ┌───────────────────────────────────┐
+         │         MicroUICore               │
+         │                                   │
+         │  Protocols    Network             │
+         │  DI           Mocks (Debug Drawer)│
+         │  Navigation   Analytics           │
+         │  DesignSystem DeepLink            │
+         │  ReusableUI   FeatureFlags        │
+         │  Localization EventBus            │
+         │  Logging      Cache               │
+         │  Security     Pagination          │
+         │  ErrorHandler Config (Env)        │
+         │  Notifications                    │
+         └───────────────────────────────────┘
 ```
-
----
-
-## Table of Contents
-
-1. [Module Rules](#module-rules)
-2. [Module File Structure](#module-file-structure)
-3. [Creating a New Module (CLI)](#creating-a-new-module)
-4. [Navigation](#navigation)
-5. [Factory DI](#factory-di)
-6. [Network Layer (BaseService + APIRoute)](#network-layer)
-7. [Auth Token Sharing](#auth-token-sharing)
-8. [Analytics](#analytics)
-9. [Deep Linking](#deep-linking)
-10. [Feature Flags](#feature-flags)
-11. [Event Bus](#event-bus)
-12. [Localization](#localization)
-13. [Logging](#logging)
-14. [Caching](#caching)
-15. [Security](#security)
-16. [ReusableUI Components](#reusableui-components)
-17. [Testing](#testing)
-18. [Project Conventions](#project-conventions)
 
 ---
 
 ## Module Rules
 
 ```
- Module CAN import MicroUICore
- Module CAN import Factory (re-exported by MicroUICore)
- Module CAN have its own models, networking, state
+✅ Module CAN import MicroUICore
+✅ Module CAN import Factory (re-exported by MicroUICore)
+✅ Module CAN import Kingfisher (re-exported by MicroUICore)
+✅ Module CAN have its own models, networking, state
 
- Module CANNOT import another module
- Module CANNOT know about the main app
- Module CANNOT use global singletons outside Factory Container
- Module CANNOT use CocoaPods
+❌ Module CANNOT import another module
+❌ Module CANNOT know about the main app
+❌ Module CANNOT use global singletons outside Factory Container
+❌ Module CANNOT use CocoaPods
 ```
 
 ---
@@ -89,58 +104,77 @@ A production-grade iOS app architecture where each feature is a fully self-conta
 
 ```
 FeatureNameMicroUI/
-├── Package.swift
+├── Package.swift                          ← resources include Mocks/JSON
 ├── Sources/FeatureNameMicroUI/
 │   ├── Builder/
-│   │   ├── FeatureNameMicroUIConfig.swift         ← registers into Container
-│   │   ├── FeatureNameMicroUIRouter.swift          ← typed route enum
-│   │   ├── FeatureNameMicroUITileBuilder.swift     ← dashboard tile builder
-│   │   └── FeatureNameMicroUIScreenBuilder.swift   ← full screen builder
+│   │   ├── Config.swift                   ← registers tile + screen + mocks
+│   │   ├── Router.swift                   ← typed OwlsRouter enum
+│   │   ├── TileBuilder.swift              ← embeddable widget
+│   │   ├── ScreenBuilder.swift            ← full screen
+│   │   └── DeepLinkHandler.swift          ← URL routing
 │   ├── Data/
-│   │   ├── FeatureNameAPI.swift                    ← API route enum (OwlsAPIRoute)
-│   │   ├── FeatureNameMicroUIDataSource.swift      ← mock + live data sources
-│   │   └── FeatureNameMicroUIServiceDispatcher.swift
+│   │   ├── FeatureNameAPI.swift           ← API routes (OwlsAPIRoute)
+│   │   ├── DataSource.swift               ← live + mock implementations
+│   │   └── ServiceDispatcher.swift
 │   ├── Domain/
 │   │   ├── Models/
-│   │   │   └── FeatureNameItem.swift
-│   │   └── FeatureNameMicroUIRepository.swift
+│   │   └── Repository.swift
 │   ├── Localization/
-│   │   └── FeatureNameLocalizedString.swift        ← English keys only
+│   │   └── LocalizedString.swift          ← English keys
+│   ├── Mocks/
+│   │   ├── MockProvider.swift             ← lists mocks (route + JSON)
+│   │   └── JSON/
+│   │       ├── nameSuccess.json
+│   │       ├── nameEmpty.json
+│   │       └── nameFailure.json
 │   ├── ViewModels/
-│   │   └── FeatureNameMicroUIViewModel.swift
 │   └── UI/
-│       ├── Screens/
-│       │   ├── FeatureNameMicroUIView.swift
-│       │   └── FeatureNameDetailView.swift
-│       └── Views/
-│           └── FeatureNameTileView.swift
+│       ├── Screens/                       ← list, detail, create sheet
+│       └── Views/                         ← tile views
 └── Tests/FeatureNameMicroUITests/
-    └── FeatureNameMicroUIViewModelTests.swift      ← auto-generated tests
+    └── ViewModelTests.swift               ← starter test cases
 ```
 
 ---
 
-## CLI Tool — owls-microui
+## Default Modules (Demo App)
 
-The CLI is distributed as a **compiled binary via Homebrew** from a private repo. Source code is never exposed.
+The repo ships with 8 modules demonstrating the architecture:
 
-### Install (one time)
+| Module | Purpose |
+|---|---|
+| **AuthMicroUI** | Login/Signup forms + Apple Sign In + token persistence |
+| **OnboardingMicroUI** | 3-page first-launch walkthrough |
+| **FeatureHomeMicroUI** | Story feed with pagination, sheet, fullscreen reader |
+| **FeatureProfileMicroUI** | Profile + Edit + Logout with custom confirmation |
+| **SettingsMicroUI** | Dark mode, language, cache, env switcher |
+| **FavoriteScreenMicroUI** | Favorites list (CLI-generated example) |
+| **OwlScreenMicroUI** | Generic CRUD module (CLI-generated example) |
+| **OwlAboutMicroUI** | Generic info module (CLI-generated example) |
 
-```bash
-# Prerequisites
-brew install gh
-gh auth login
-
-# Add GitHub token to shell
-echo 'export HOMEBREW_GITHUB_API_TOKEN=$(gh auth token)' >> ~/.zshrc
-source ~/.zshrc
-
-# Install
-brew tap debuging-life/owls-cli git@github-pardipbhatti8791:debuging-life/homebrew-owls-cli.git
-brew install owls-microui
+**App flow:**
+```
+First Launch → Onboarding (3 pages) → "Get Started"
+    ↓
+Auth Screen (Login/Signup + Apple Sign In)
+    ↓ (login → registers token, persists to Keychain)
+TabView
+├── Stories (paginated list, create sheet, fullscreen reader)
+├── Profile (edit, logout with confirmation)
+└── Settings (dark mode, language, cache, env switcher)
 ```
 
-### Creating a New Module
+---
+
+## Creating a New Module
+
+### Install the CLI (one time)
+
+```bash
+brew install debuging-life/owls-cli/owls-microui
+```
+
+### Create a module
 
 ```bash
 owls-microui create Transfers
@@ -148,190 +182,273 @@ owls-microui create Transfers
 
 **Interactive prompts:**
 - Author name & email
-- SF Symbol icon for the tile
-- Tile description text
+- SF Symbol icon
+- Tile description
 
 **What it does automatically:**
-1. Scaffolds `Packages/TransfersMicroUI/` with 16 files
-2. Generates `TransfersAPI` route enum with CRUD operations
-3. Generates `TransfersLocalizedString` with English keys
-4. Generates test target with 3 starter tests
-5. Adds DI slots to `Container+Common.swift`
-6. Adds import + config to `MicroUIBootstrap.swift`
-7. Updates `project.pbxproj` (package reference + framework link)
+1. Scaffolds `Packages/TransfersMicroUI/` with full structure
+2. Generates `TransfersAPI` route enum (CRUD endpoints)
+3. Generates `TransfersMockProvider` + 3 sample JSONs
+4. Generates `TransfersLocalizedString` with English keys
+5. Generates test target with starter tests
+6. Adds DI slots to `Container+Common.swift`
+7. Adds import + config to `MicroUIBootstrap.swift`
+8. Updates `project.pbxproj` (package reference + framework link)
 
-### Removing a Module
+### Remove a module
 
 ```bash
 owls-microui remove Transfers
 ```
 
-Removes all files, DI slots, bootstrap registration, and Xcode references. Requires typing the module name to confirm.
-
-### Other Commands
-
-```bash
-owls-microui create --dry-run BillPay  # preview without writing
-owls-microui remove --dry-run BillPay  # preview without deleting
-owls-microui remove --force BillPay    # skip confirmation
-owls-microui --help
-```
-
-### Update
-
-```bash
-brew upgrade owls-microui
-```
-
-### Security
-
-| Layer | Protection |
-|---|---|
-| SSH key | `brew tap` fails without repo access |
-| GitHub token | `brew install` fails without valid token |
-| Compiled binary | Source code never exposed to developers |
+**[Full CLI docs →](https://github.com/debuging-life/homebrew-owls-cli)**
 
 ---
 
 ## Navigation
 
-### Layer 1: Cross-Module (Shell -> Module)
+### Layer 1: Cross-Module (Shell → Module)
 
-Uses `OwlsNavigationCoordinator` with `isPresented: Bool`.
+`OwlsNavigationCoordinator` with `present()` and `dismiss()`:
 
 ```swift
 .fullScreenCover(isPresented: Bindable(coordinator).isPresented) {
     screenBuilder?.buildScreen()
 }
+
+// Or as sheet:
+coordinator.present(style: .sheet)
+
+// With data:
+coordinator.present(style: .fullScreen, data: ["itemId": "123"])
+let id: String? = coordinator.value(for: "itemId")
 ```
 
-The shell knows nothing about the module's internals.
+### Layer 2: Intra-Module (Screen → Screen)
 
-### Layer 2: Intra-Module (Screen -> Screen)
-
-Uses `NavigationPath` + typed `OwlsRouter` enum.
+Typed `OwlsRouter` enum with `NavigationStack`:
 
 ```swift
 enum FeatureHomeMicroUIRouter: OwlsRouter {
-    case detail(HomeItem)
+    case detail(Story)
 
     func resolveViewForRoute() -> some View {
         switch self {
-        case .detail(let item): HomeItemDetailView(item: item)
+        case .detail(let story): StoryDetailView(story: story)
         }
     }
 }
 
 // Push:
-path.append(FeatureHomeMicroUIRouter.detail(item))
+path.append(FeatureHomeMicroUIRouter.detail(story))
+```
+
+### Auth Gate (RootView)
+
+Listens to `OwlsEventBus` for login/logout events to swap between auth screen and TabView:
+
+```swift
+@Observable
+final class AppAuthState {
+    var isLoggedIn = false
+
+    init() {
+        OwlsEventBus.shared.on("user.logged_in") { _ in self.isLoggedIn = true }
+        OwlsEventBus.shared.on("user.logged_out") { _ in self.isLoggedIn = false }
+    }
+}
 ```
 
 ---
 
 ## Factory DI
 
-### 1. Declare slots (MicroUICore)
-
 ```swift
+// 1. Declare slot in MicroUICore (Container+Common.swift)
 extension Container {
-    public var homeTileBuilder: Factory<MicroUITileBuilder?> { promised() }
     public var homeScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
 }
-```
 
-### 2. Register (Module Config)
-
-```swift
-Container.shared.homeTileBuilder.register {
-    FeatureHomeMicroUITileBuilder()
+// 2. Module registers in Config
+Container.shared.homeScreenBuilder.register {
+    FeatureHomeMicroUIScreenBuilder()
 }
+
+// 3. Inject anywhere
+@Injected(\.homeScreenBuilder) private var homeScreenBuilder
 ```
-
-### 3. Inject (Any View)
-
-```swift
-@Injected(\.homeTileBuilder) private var homeTileBuilder
-```
-
-`promised()` returns `nil` if unregistered — safe for feature flags.
 
 ---
 
 ## Network Layer
 
-### OwlsAPIRoute — Each Module Defines Its Own Routes
+### OwlsAPIRoute — Module-Owned Routes
 
 ```swift
-enum StoryAPI: OwlsAPIRoute {
-    case list
+enum HomeAPI: OwlsAPIRoute {
+    case list(page: Int, limit: Int)
     case detail(id: String)
-    case create(StoryCreateRequest)
+    case create(title: String, author: String, summary: String)
 
     var path: String {
         switch self {
-        case .list: "/v1/stories"
-        case .detail(let id): "/v1/stories/\(id)"
-        case .create: "/v1/stories"
+        case .list, .create: "/v1/home"
+        case .detail(let id): "/v1/home/\(id)"
         }
     }
 
-    var method: HTTPMethod {
-        switch self {
-        case .list, .detail: .get
-        case .create: .post
-        }
-    }
-
-    var body: Data? {
-        switch self {
-        case .create(let payload): Self.encode(payload)
-        default: nil
-        }
-    }
+    var method: HTTPMethod { ... }
+    var queryItems: [URLQueryItem]? { ... }
+    var body: Data? { ... }
 }
 ```
 
-### OwlsBaseService — Subclass and Call Routes
+### OwlsBaseService
 
 ```swift
-final class LiveStoryDataSource: OwlsBaseService, StoryDataSource {
-    func fetchStories() async throws -> [Story] {
-        try await request(StoryAPI.list)
+final class LiveHomeDataSource: OwlsBaseService, HomeDataSource {
+    func fetchStories(page: Int, limit: Int) async throws -> [Story] {
+        try await request(HomeAPI.list(page: page, limit: limit))
     }
 }
 ```
 
-**What happens automatically on every request:**
-1. `OwlsLoggingInterceptor` logs `[Network] GET /v1/stories`
-2. `OwlsAuthInterceptor` injects `Bearer <token>` from Container
-3. URLComponents builds URL from route (scheme, host, path, query)
-4. Response: status code check, auto-retry on 401 after token refresh
-5. Decode with snake_case + ISO8601
+**On every request:**
+1. **Mock interception (DEBUG only)** — see Mock Data System below
+2. `OwlsLoggingInterceptor` logs `[Network] GET /v1/home`
+3. `OwlsAuthInterceptor` injects `Bearer <token>`
+4. URLComponents builds URL from route
+5. Auto-retry on 401 after token refresh
+6. Decodes with snake_case + ISO8601
+
+---
+
+## Mock Data System / Debug Drawer
+
+The killer feature for fast iteration. **Frontend ships UI without waiting for backend.**
+
+### How it works
+
+```
+1. Each module registers an OwlsMockProvider listing 3 mocks per endpoint:
+   - Success (200, sample data)
+   - Empty (200, [])
+   - Failure (500, error JSON)
+
+2. In DEBUG, a floating 🐛 button appears bottom-right.
+
+3. Tapping the button opens the Debug Drawer:
+   - Search across all mocks
+   - Toggle per mock
+   - Grouped by module
+   - Active count badges
+
+4. When a mock is enabled, OwlsBaseService.request() detects it
+   and returns the JSON instead of hitting the network.
+
+5. In RELEASE, all mock code is stripped (#if DEBUG).
+```
+
+### Defining a mock provider
+
+```swift
+public struct FeatureHomeMicroUIMockProvider: OwlsMockProvider {
+
+    public var moduleName: String { "FeatureHomeMicroUI" }
+
+    public func mockItems() -> [OwlsMockItem] {
+        // Reference the API route — endpoint/method come from HomeAPI
+        let listRoute = HomeAPI.list(page: 1, limit: 1)
+
+        return [
+            OwlsMockItem(
+                id: "home.stories.success",
+                name: "Stories — Success (3 items)",
+                module: moduleName,
+                route: listRoute,
+                jsonFilename: "storiesSuccess.json",
+                bundle: .module,
+                statusCode: 200,
+                category: .success
+            ),
+            // ... empty + failure
+        ]
+    }
+}
+```
+
+### Registering in Config
+
+```swift
+public func registerMicroUI() {
+    Container.shared.homeScreenBuilder.register { ... }
+
+    #if DEBUG
+    OwlsMockRegistry.shared.register(FeatureHomeMicroUIMockProvider())
+    #endif
+}
+```
+
+### Package.swift resource configuration
+
+```swift
+.target(
+    name: "FeatureHomeMicroUI",
+    dependencies: ["MicroUICore"],
+    resources: [.process("Mocks/JSON")]   // ← bundles JSON files
+)
+```
+
+### Auto-enable defaults on first launch (optional)
+
+In `MicroUIBootstrap.swift`:
+```swift
+private static func enableDefaultMocksIfNeeded() {
+    #if DEBUG
+    let key = "owls.mocks.defaultsEnabled"
+    guard !UserDefaults.standard.bool(forKey: key) else { return }
+    OwlsMockRegistry.shared.setEnabled("home.stories.success", enabled: true)
+    UserDefaults.standard.set(true, forKey: key)
+    #endif
+}
+```
 
 ---
 
 ## Auth Token Sharing
 
 ```swift
-// AuthMicroUI logs in → registers provider
+// AuthMicroUI logs in → registers provider + persists to Keychain
 Container.shared.authTokenProvider.register { LiveAuthTokenProvider(token) }
+OwlsKeychain.shared.save(token.accessToken, forKey: .accessToken)
 
 // Any module — inject and use:
 @Injected(\.authTokenProvider) private var auth
-let token = try await auth?.token()
-// Token auto-refreshes if expired
+let token = try await auth?.token()    // auto-refreshes if expired
 
-// User logs out → provider cleared
+// Logout
 Container.shared.authTokenProvider.register { nil }
+OwlsKeychain.shared.delete(.accessToken)
+OwlsEventBus.shared.post(.userLoggedOut)
 ```
 
-Modules never import AuthMicroUI — they only depend on the `AuthTokenProvider` protocol in MicroUICore.
+### Apple Sign In
+
+```swift
+AppleSignInButton { userId, email in
+    Task { await viewModel.socialLogin(provider: "apple", userId: userId, email: email) }
+} onError: { error in
+    viewModel.errorMessage = error
+}
+```
+
+### Session Restore
+
+`MicroUIBootstrap.restoreSession()` reads tokens from Keychain on app launch and re-registers the provider. Login state survives app restarts.
 
 ---
 
 ## Analytics
-
-### Multi-Provider Architecture
 
 ```swift
 // App shell registers providers at boot:
@@ -340,35 +457,19 @@ Container.shared.analyticsProviders.register {
 }
 
 // Any module fires events:
-OwlsAnalytics.track(.screenViewed("StoryDetail", module: "StoryLibrary"))
+OwlsAnalytics.track(.screenViewed("StoryDetail", module: "Home"))
 OwlsAnalytics.track(.buttonTapped("Purchase", screen: "Subscription"))
 OwlsAnalytics.track(.errorOccurred("Load failed", module: "Home", screen: "List"))
 
-// SwiftUI view modifier:
-.trackScreen("StoryDetail", module: "StoryLibrary")
+// SwiftUI modifier:
+.trackScreen("StoryList", module: "FeatureHomeMicroUI")
 ```
-
-### Built-in Event Types
-
-| Builder | Parameters |
-|---|---|
-| `.screenViewed(name, module)` | Screen view tracking |
-| `.buttonTapped(name, screen)` | User interaction |
-| `.apiCalled(endpoint, success, duration)` | Network monitoring |
-| `.errorOccurred(error, module, screen)` | Error tracking |
-| `.appLifecycle(state)` | Foreground/background |
 
 ---
 
 ## Deep Linking
 
-### URL Format
-
-```
-owlsapp://storylibrary/detail/123?tab=reviews
-```
-
-### How It Works
+URL format: `owlsapp://module/path?key=value`
 
 ```swift
 // 1. App receives URL
@@ -376,209 +477,266 @@ owlsapp://storylibrary/detail/123?tab=reviews
     OwlsDeepLinkRouter.shared.route(url: url)
 }
 
-// 2. Module registers a handler (in Config)
-OwlsDeepLinkRouter.shared.register(StoryLibraryDeepLinkHandler())
-
-// 3. Handler routes to the correct screen
-struct StoryLibraryDeepLinkHandler: OwlsDeepLinkHandler {
-    var supportedModules: [String] { ["storylibrary"] }
+// 2. Module's DeepLinkHandler (registered in Config)
+struct FeatureHomeMicroUIDeepLinkHandler: OwlsDeepLinkHandler {
+    var supportedModules: [String] { ["home"] }
 
     func handle(_ deepLink: OwlsDeepLink) -> Bool {
-        let id = deepLink.path  // "detail/123"
-        coordinator.present()
+        let coordinator = Container.shared.homeNavigationCoordinator()
+        coordinator.present(style: .fullScreen, data: ["path": deepLink.path])
         return true
     }
 }
 ```
 
-Also supports push notifications:
+Push notifications also route through this:
 ```swift
 OwlsDeepLinkRouter.shared.route(userInfo: notification.userInfo)
 ```
 
 ---
 
-## Feature Flags
-
-### Server-Driven Flags
+## Push Notifications
 
 ```swift
-// App fetches flags at boot:
-await featureFlagProvider.fetchFlags()
-// GET /api/feature-flags → {"module.storylibrary.enabled": true, ...}
+// AppDelegate handles registration + delivery
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ app: UIApplication, didFinishLaunchingWithOptions: ...) -> Bool {
+        Task { await OwlsPushNotificationManager.shared.requestPermission() }
+        app.registerForRemoteNotifications()
+        return true
+    }
+
+    func application(_ app: UIApplication, didReceiveRemoteNotification userInfo: ...) async -> UIBackgroundFetchResult {
+        OwlsPushNotificationManager.shared.handleNotification(userInfo: userInfo)
+        return .newData
+    }
+}
+```
+
+### Testing in Simulator
+
+```bash
+xcrun simctl push booted aap.loudowls.micruiachitecture TestPayloads/story_notification.apns
+```
+
+Or drag the `.apns` file onto the Simulator window.
+
+Push payload format:
+```json
+{
+    "aps": { "alert": { "title": "...", "body": "..." } },
+    "module": "home",
+    "path": "detail/123"
+}
+```
+
+---
+
+## Feature Flags
+
+```swift
+// App fetches at boot (non-blocking)
+Task { try? await provider.fetchFlags() }
+// GET /api/feature-flags → {"module.home.enabled": true, ...}
 
 // Module-level checks:
-if OwlsModuleFlag.isStoryLibraryEnabled { showTile() }
+if OwlsModuleFlag.isHomeEnabled { showTile() }
 
 // Custom flags:
 if OwlsFeatureFlag.isEnabled("feature.dark_mode") { ... }
-let maxRetries: Int = OwlsFeatureFlag.value("max_retry_count", defaultValue: 3)
+let max: Int = OwlsFeatureFlag.value("max_retry_count", defaultValue: 3)
 ```
-
-### How It Integrates with DI
-
-When a module's flag is disabled, its `promised()` slot stays unregistered. The tile builder returns `nil`, so the tile doesn't appear on the dashboard. No crashes, no `if/else` in the UI.
 
 ---
 
 ## Event Bus
 
-### Module-to-Module Communication
-
 ```swift
-// AuthMicroUI posts when user logs out:
+// Post:
 OwlsEventBus.shared.post(.userLoggedOut)
 
-// HomeMicroUI listens and clears its cache:
+// Listen:
 let sub = OwlsEventBus.shared.on("user.logged_out") { _ in
     OwlsCache.shared.invalidate(prefix: "home.")
 }
-
-// Cancel subscription when done:
 sub.cancel()
 ```
 
-### Built-in Events
+### Built-in events
 
 | Event | Fired When |
 |---|---|
-| `.userLoggedIn` | Auth completes login |
-| `.userLoggedOut` | Auth completes logout |
+| `.userLoggedIn` / `.userLoggedOut` | Auth flow |
 | `.tokenRefreshed` | Token auto-refreshed |
 | `.languageChanged` | User switches language |
-| `.themeChanged` | Dark/light mode toggle |
+| `.themeChanged` | Dark/light toggle |
 | `.cacheCleared` | Cache invalidated |
 
 ---
 
 ## Localization
 
-### Server-Driven Translations
-
-Modules only define **English keys**. Other languages come from the server.
+Module defines **English keys**. Other languages come from server.
 
 ```swift
-// Module defines keys (Localization/StoryLibraryLocalizedString.swift)
-enum StoryLibraryStrings {
+enum HomeStrings {
     static var screenTitle: String {
-        owlsLocalized("storylibrary.title", comment: "Story Library")
-    }
-    static var emptyTitle: String {
-        owlsLocalized("storylibrary.empty.title", comment: "No Stories Yet")
+        owlsLocalized("home.title", comment: "Stories")
     }
 }
 
-// Usage in view:
-.navigationTitle(StoryLibraryStrings.screenTitle)
-```
-
-### How Translation Resolution Works
-
-```
-English (default):
-  comment: "Story Library" → returns "Story Library"
-
-Spanish (after server fetch):
-  key: "storylibrary.title" → looks up translations → "Biblioteca"
-
-Missing translation:
-  key not in server response → falls back to comment → "Story Library"
-```
-
-### Switching Language
-
-```swift
+// Switch language:
 let provider = Container.shared.languageProvider()
 await provider?.fetchTranslations(for: .es)
-// GET /api/translations?lang=es
-// All owlsLocalized() calls now return Spanish
+// GET /api/translations?lang=es → all owlsLocalized() calls return Spanish
 ```
+
+Missing translations fall back to the English `comment` value.
 
 ---
 
 ## Logging
 
-### Unified Logger with os.Logger
-
 ```swift
-OwlsLogger.debug("Loading stories", module: "StoryLibrary")
-OwlsLogger.info("Fetched 42 items", module: "StoryLibrary")
-OwlsLogger.warning("Cache miss", module: "StoryLibrary")
-OwlsLogger.error("Failed to load", module: "StoryLibrary", error: error)
-OwlsLogger.critical("Database corrupted", module: "StoryLibrary")
+OwlsLogger.debug("...", module: "Home")
+OwlsLogger.info("Fetched 42 items", module: "Home")
+OwlsLogger.warning("Cache miss", module: "Home")
+OwlsLogger.error("Failed to load", module: "Home", error: error)
+OwlsLogger.critical("Database corrupted", module: "Home")
 ```
 
-**Output (DEBUG):**
+Output (DEBUG):
 ```
-🔍 [StoryLibrary] Loading stories (StoryListView.swift:45)
-ℹ️ [StoryLibrary] Fetched 42 items (StoryListViewModel.swift:32)
-⚠️ [StoryLibrary] Cache miss (StoryService.swift:18)
-❌ [StoryLibrary] Failed to load | Network error (StoryListViewModel.swift:38)
+🔍 [Home] ... (HomeListView.swift:45)
+ℹ️ [Home] Fetched 42 items (HomeListViewModel.swift:32)
+❌ [Home] Failed to load | Network error (HomeListViewModel.swift:38)
 ```
 
-Errors (level >= .error) are automatically forwarded to Analytics.
+`error` and `critical` levels auto-forward to Analytics.
 
 ---
 
 ## Caching
 
-### In-Memory Cache with TTL
-
 ```swift
-// Get or fetch (caches for 5 minutes by default):
+// Get or fetch with TTL (default 5 min)
 let stories: [Story] = try await OwlsCache.shared.get("stories") {
-    try await service.fetchStories()  // only calls API if cache is stale
+    try await service.fetchStories()
 }
 
-// Custom TTL:
-let profile = try await OwlsCache.shared.get("profile", ttl: 600) {
-    try await service.fetchProfile()
-}
-
-// Invalidate:
-OwlsCache.shared.invalidate("stories")             // single key
-OwlsCache.shared.invalidate(prefix: "home.")        // all home keys
-OwlsCache.shared.invalidateAll()                    // everything
+// Invalidate
+OwlsCache.shared.invalidate("stories")
+OwlsCache.shared.invalidate(prefix: "home.")
+OwlsCache.shared.invalidateAll()    // posts .cacheCleared event
 ```
 
-On `invalidateAll()`, the event bus posts `.cacheCleared` so modules can react.
+---
+
+## Pagination
+
+```swift
+// In ViewModel
+let paginator = OwlsPaginator<Story>(pageSize: 10) { page, size in
+    try await repository.loadStories(page: page, limit: size)
+}
+
+// In View
+List(paginator.items) { story in
+    StoryRow(story: story)
+        .task { await paginator.loadNextPageIfNeeded(currentItem: story) }
+}
+.task { await paginator.loadFirstPage() }
+.refreshable { await paginator.refresh() }
+```
+
+States: `.idle / .loading / .loadingMore / .loaded / .empty / .error`
+
+---
+
+## Error Handler
+
+```swift
+// Any module — catch + handle globally
+do {
+    try await service.fetchStories()
+} catch {
+    OwlsErrorHandler.shared.handle(error, module: "Home", screen: "List")
+}
+
+// App shell shows alert automatically
+RootView()
+    .owlsErrorAlert()
+```
+
+401 errors auto-trigger logout. All errors logged + tracked in Analytics.
 
 ---
 
 ## Security
 
-### Keychain Wrapper
+### Keychain
 
 ```swift
-// Save
 OwlsKeychain.shared.save(token, forKey: .accessToken)
-
-// Read
 let token = OwlsKeychain.shared.string(forKey: .accessToken)
-
-// Delete
 OwlsKeychain.shared.delete(.accessToken)
-
-// Check
-if OwlsKeychain.shared.exists(.refreshToken) { ... }
 ```
 
-Data stored with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` — encrypted at rest, available after first unlock, not backed up to iCloud.
+Stored with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` — encrypted, no iCloud backup.
 
 ### Certificate Pinning
 
 ```swift
-// Create a pinned URLSession:
-let session = URLSession.owlsPinned(hashes: [
-    "abc123...",  // primary cert hash
-    "def456...",  // backup cert hash
-])
-
-// Use in BaseService:
+let session = URLSession.owlsPinned(hashes: ["sha256-hash-1", "sha256-hash-2"])
 let service = MyService(session: session)
 ```
 
-SHA256 hash of the server certificate. Pinning is bypassed in DEBUG builds for proxy tools (Charles, Proxyman).
+Bypassed in DEBUG builds for proxy tools (Charles, Proxyman).
+
+---
+
+## Environment Config
+
+```swift
+// Auto-detects: DEBUG → .dev, RELEASE → .prod
+OwlsAppConfig.shared.environment   // .dev / .staging / .prod
+
+// Switch (updates base URL + fires event)
+OwlsAppConfig.shared.setEnvironment(.staging)
+
+// Per-env URLs
+.dev     → https://dev-api.example.com
+.staging → https://staging-api.example.com
+.prod    → https://api.example.com
+```
+
+Switch from Settings tab in DEBUG builds.
+
+---
+
+## Image Loading
+
+Powered by **Kingfisher** (re-exported by MicroUICore).
+
+```swift
+OwlsRemoteImage(urlString: "https://...", placeholder: "photo")
+
+// Or
+OwlsRemoteImage(url: URL(...), size: CGSize(width: 200, height: 200))
+
+// Configure cache
+OwlsImageCache.configure(
+    memoryLimit: 100 * 1024 * 1024,   // 100 MB
+    diskLimit: 500 * 1024 * 1024,      // 500 MB
+    diskExpiration: .days(7)
+)
+
+// Clear (e.g. from Settings)
+OwlsImageCache.clearAll()
+```
+
+Built-in retry, fade-in, placeholder, memory + disk cache.
 
 ---
 
@@ -589,65 +747,74 @@ All available via `import MicroUICore`:
 | Component | Usage |
 |---|---|
 | `OwlsButton` | `.primary`, `.secondary`, `.destructive` variants |
-| `OwlsCard` | Card wrapper with shadow and rounded corners |
-| `OwlsTextField` | Input with `.idle`, `.valid`, `.invalid("msg")` states |
-| `OwlsAvatar` | `.initials("PB")`, `.icon("person")` in `.small/.medium/.large` |
-| `OwlsBadge` | `.count(3)` or `.dot` with `.owlsBadge(3)` view modifier |
+| `OwlsCard` | Card wrapper with shadow/rounded corners |
+| `OwlsTextField` | With `isSecure`, `textCase`, validation states |
+| `OwlsAvatar` | `.initials("PB")`, `.icon("person")`, sizes |
+| `OwlsBadge` | `.count(3)` or `.dot`; `.owlsBadge(3)` modifier |
 | `OwlsSheet` | `.owlsSheet(isPresented:)` with detents |
-| `OwlsConfirmationSheet` | Title + message + confirm/cancel |
-| `OwlsLoadingView` | Spinner with optional message |
-| `OwlsSkeletonRow` | Shimmer loading placeholder |
+| `OwlsConfirmationSheet` | Custom confirm/cancel dialog (used for logout) |
+| `OwlsLoadingView` | Spinner + skeleton row + shimmer |
 | `OwlsEmptyState` | Icon + title + description + optional CTA |
 | `OwlsAlert` | `.info`, `.success`, `.warning`, `.error` banners |
 | `OwlsAppearance` | Global nav/tab bar appearance config |
+| `OwlsRemoteImage` | Async image loading via Kingfisher |
+| `OwlsDebugDrawer` | Mock + env switcher (DEBUG only) |
+| `OwlsDebugButton` | Floating 🐛 launcher (DEBUG only) |
 
-### Design Tokens
+### Design tokens
 
 ```swift
-OwlsColor.primary / .secondary / .label / .secondaryLabel / .background
-OwlsSpacing.xs / .sm / .md / .lg / .xl / .xxl
+OwlsColor.primary       // #5FA052 (HooTales green)
+OwlsColor.secondary     // #040506
+OwlsColor.background / .secondaryBackground / .label / .secondaryLabel
+
+OwlsSpacing.xxs / .xs / .sm / .md / .lg / .xl / .xxl / .xxxl
 OwlsRadius.sm / .md / .lg / .xl / .pill
 OwlsTypography.largeTitle / .title / .headline / .body / .callout / .caption
 ```
 
 ---
 
-## Testing
-
-Every module generated by the CLI includes a test target with starter tests.
+## Dark Mode
 
 ```swift
-@Suite("StoryLibraryMicroUI ViewModel Tests")
-struct StoryLibraryMicroUIViewModelTests {
+@AppStorage("owls.settings.darkMode") private var isDarkMode = false
 
-    struct StubRepository: StoryLibraryRepository {
+RootView()
+    .preferredColorScheme(isDarkMode ? .dark : .light)
+```
+
+Toggle via Settings tab. Posts `.themeChanged` event so modules can react.
+
+---
+
+## Testing
+
+Every CLI-generated module includes a test target:
+
+```swift
+@Suite("FeatureHomeMicroUI ViewModel Tests")
+struct HomeListViewModelTests {
+
+    struct StubRepository: HomeRepository {
         var shouldFail = false
-        func loadAll() async throws -> [StoryLibraryItem] {
+        func loadStories(page: Int, limit: Int) async throws -> [Story] {
             if shouldFail { throw TestError.mockFailure }
-            return StoryLibraryItem.mock
+            return Story.mock
         }
         // ...
     }
 
-    @Test("Load items successfully")
-    func loadItems() async {
-        let vm = StoryLibraryMicroUIViewModel(repository: StubRepository())
-        await vm.load()
-        #expect(vm.items.count == 3)
-        #expect(vm.errorMessage == nil)
-    }
-
-    @Test("Load failure shows error")
-    func loadFailure() async {
-        let vm = StoryLibraryMicroUIViewModel(repository: StubRepository(shouldFail: true))
-        await vm.load()
-        #expect(vm.items.isEmpty)
-        #expect(vm.errorMessage != nil)
+    @Test("Load stories successfully")
+    func loadStories() async {
+        let vm = HomeListViewModel(repository: StubRepository())
+        await vm.paginator.loadFirstPage()
+        #expect(!vm.paginator.items.isEmpty)
     }
 }
 ```
 
-Run tests: `swift test --package-path Packages/StoryLibraryMicroUI`
+Run: `swift test --package-path Packages/FeatureHomeMicroUI`
 
 ---
 
@@ -670,6 +837,8 @@ Run tests: `swift test --package-path Packages/StoryLibraryMicroUI`
 | API Routes | Typed enums conforming to `OwlsAPIRoute` |
 | Caching | `OwlsCache` with TTL, no manual dictionaries |
 | Secrets | `OwlsKeychain` only, never UserDefaults |
+| Mocks | Reference `route:` from API enum (single source of truth) |
+| Image Loading | `OwlsRemoteImage` only, no raw `AsyncImage` |
 
 ---
 
@@ -680,9 +849,12 @@ Run tests: `swift test --package-path Packages/StoryLibraryMicroUI`
 - SwiftUI
 - Swift Package Manager
 - Factory 2.x (DI)
+- Kingfisher 8.x (image loading)
 - Swift Observation (`@Observable`)
 - os.Logger (structured logging)
 - CryptoKit (certificate pinning)
+- AuthenticationServices (Apple Sign In)
+- UserNotifications (push)
 
 ---
 
@@ -690,20 +862,31 @@ Run tests: `swift test --package-path Packages/StoryLibraryMicroUI`
 
 ```
 MicroUICore/Sources/MicroUICore/
-├── Analytics/          ← event tracking, multi-provider
+├── Analytics/          ← multi-provider event tracking
 ├── Auth/               ← AuthTokenProvider protocol
 ├── Cache/              ← in-memory TTL cache
-├── DeepLink/           ← URL + push notification routing
+├── Config/             ← OwlsEnvironment (dev/staging/prod)
+├── DeepLink/           ← URL + push routing
 ├── DesignSystem/       ← colors, typography, spacing, radius
 ├── DI/                 ← Factory Container slots
+├── ErrorHandling/      ← OwlsErrorHandler + .owlsErrorAlert()
 ├── EventBus/           ← module-to-module pub/sub
-├── Extensions/         ← View extensions
+├── Extensions/         ← View + Color extensions
 ├── FeatureFlags/       ← server-driven flag checks
 ├── Localization/       ← server-driven translations
-├── Logging/            ← unified logger (os.Logger + analytics)
+├── Logging/            ← unified logger
+├── Mocks/              ← Mock data system + Debug Drawer
 ├── Navigation/         ← OwlsNavigationCoordinator
-├── Network/            ← BaseService, APIRoute, interceptors, errors
-├── Protocols/          ← MicroUI protocols (TileBuilder, ScreenBuilder, Router)
+├── Network/            ← BaseService, APIRoute, interceptors
+├── Notifications/      ← Push notification manager
+├── Pagination/         ← OwlsPaginator + paginated list view
+├── Protocols/          ← MicroUI protocols
 ├── ReusableUI/         ← shared UI components
 └── Security/           ← Keychain wrapper, certificate pinning
 ```
+
+---
+
+## Related Repos
+
+- **CLI Tool:** [debuging-life/homebrew-owls-cli](https://github.com/debuging-life/homebrew-owls-cli) — `owls-microui` binary distributed via Homebrew

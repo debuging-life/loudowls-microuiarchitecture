@@ -14,7 +14,8 @@ let package = Package(
     targets: [
         .target(
             name: "FeatureHomeMicroUI",
-            dependencies: ["MicroUICore"]
+            dependencies: ["MicroUICore"],
+            resources: [.process("Mocks/JSON")]
         )
     ]
 )

@@ -15,7 +15,8 @@ let package = Package(
     targets: [
         .target(
             name: "FavoriteScreenMicroUI",
-            dependencies: ["MicroUICore"]
+            dependencies: ["MicroUICore"],
+            resources: [.process("Mocks/JSON")]
         ),
         .testTarget(
             name: "FavoriteScreenMicroUITests",

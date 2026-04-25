@@ -1,3 +1,4 @@
+import Foundation
 import MicroUICore
 import FeatureHomeMicroUI
 import FeatureProfileMicroUI
@@ -5,7 +6,8 @@ import AuthMicroUI
 import OnboardingMicroUI
 import SettingsMicroUI
 import FavoriteScreenMicroUI
-import UnknowMicroUI
+import OwlScreenMicroUI
+import OwlAboutMicroUI
 
 enum MicroUIBootstrap {
 
@@ -16,7 +18,8 @@ enum MicroUIBootstrap {
         OnboardingMicroUIConfig(),
         SettingsMicroUIConfig(),
         FavoriteScreenMicroUIConfig(),
-        UnknowMicroUIConfig()
+        OwlScreenMicroUIConfig(),
+        OwlAboutMicroUIConfig()
     ]
 
     static func register() {
@@ -25,6 +28,19 @@ enum MicroUIBootstrap {
         registerLocalization()
         registerAnalytics()
         restoreSession()
+        enableDefaultMocksIfNeeded()
+    }
+
+    /// On first launch in DEBUG, enable success mocks so the demo
+    /// works out of the box without a real backend.
+    private static func enableDefaultMocksIfNeeded() {
+        #if DEBUG
+        let key = "owls.mocks.defaultsEnabled"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+
+        OwlsMockRegistry.shared.setEnabled("home.stories.success", enabled: true)
+        UserDefaults.standard.set(true, forKey: key)
+        #endif
     }
 
     private static func registerFeatureFlags() {

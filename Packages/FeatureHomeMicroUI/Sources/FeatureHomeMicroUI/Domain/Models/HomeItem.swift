@@ -1,6 +1,6 @@
 import Foundation
 
-struct Story: Identifiable, Hashable {
+struct Story: Identifiable, Hashable, Codable, Sendable {
     let id: String
     let title: String
     let author: String

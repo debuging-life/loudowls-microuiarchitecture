@@ -4,7 +4,10 @@ import Factory
 
 struct FeatureHomeMicroUIScreenBuilder: MicroUIScreenBuilder {
     func buildScreen() -> AnyView {
-        let dataSource = MockHomeDataSource()
+        // Live data source goes through OwlsBaseService.
+        // In DEBUG, mocks from the Debug Drawer intercept these calls.
+        // In RELEASE, real API is called.
+        let dataSource = LiveHomeDataSource()
         let dispatcher = HomeServiceDispatcher(dataSource: dataSource)
         let repository = DefaultHomeRepository(dispatcher: dispatcher)
         let viewModel = HomeListViewModel(repository: repository)

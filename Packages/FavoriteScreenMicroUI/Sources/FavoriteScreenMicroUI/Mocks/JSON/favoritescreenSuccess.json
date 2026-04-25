@@ -1,0 +1,23 @@
+[
+    {
+        "id": "fav-1",
+        "title": "Sample Favorite 1",
+        "subtitle": "Mocked from favoritescreenSuccess.json",
+        "iconName": "heart.fill",
+        "createdAt": "2026-04-24T12:00:00Z"
+    },
+    {
+        "id": "fav-2",
+        "title": "Sample Favorite 2",
+        "subtitle": "Another favorite item",
+        "iconName": "star.fill",
+        "createdAt": "2026-04-24T12:00:00Z"
+    },
+    {
+        "id": "fav-3",
+        "title": "Sample Favorite 3",
+        "subtitle": "Third favorite",
+        "iconName": "bookmark.fill",
+        "createdAt": "2026-04-24T12:00:00Z"
+    }
+]

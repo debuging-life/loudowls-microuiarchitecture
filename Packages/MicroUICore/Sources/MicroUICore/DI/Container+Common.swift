@@ -11,7 +11,8 @@ extension Container {
     public var onboardingTileBuilder: Factory<MicroUITileBuilder?> { promised() }
     public var settingsTileBuilder: Factory<MicroUITileBuilder?> { promised() }
     public var favoritescreenTileBuilder: Factory<MicroUITileBuilder?> { promised() }
-    public var unknowTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var owlscreenTileBuilder: Factory<MicroUITileBuilder?> { promised() }
+    public var owlaboutTileBuilder: Factory<MicroUITileBuilder?> { promised() }
 }
 
 // MARK: - Screen Builders
@@ -24,7 +25,8 @@ extension Container {
     public var onboardingScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var settingsScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
     public var favoritescreenScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
-    public var unknowScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
+    public var owlscreenScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
+    public var owlaboutScreenBuilder: Factory<MicroUIScreenBuilder?> { promised() }
 }
 
 // MARK: - Navigation Coordinators
@@ -46,7 +48,11 @@ extension Container {
         self { OwlsNavigationCoordinator() }.scope(.shared)
     }
 
-    public var unknowNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
+    public var owlscreenNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
+        self { OwlsNavigationCoordinator() }.scope(.shared)
+    }
+
+    public var owlaboutNavigationCoordinator: Factory<OwlsNavigationCoordinator> {
         self { OwlsNavigationCoordinator() }.scope(.shared)
     }
 }

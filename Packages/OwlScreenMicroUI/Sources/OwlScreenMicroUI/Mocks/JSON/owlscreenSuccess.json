@@ -1,0 +1,23 @@
+[
+    {
+        "id": "mock-1",
+        "title": "Sample OwlScreen 1",
+        "subtitle": "Mocked from owlscreenSuccess.json",
+        "iconName": "star.fill",
+        "createdAt": "2026-04-24T12:00:00Z"
+    },
+    {
+        "id": "mock-2",
+        "title": "Sample OwlScreen 2",
+        "subtitle": "Another mock item",
+        "iconName": "heart.fill",
+        "createdAt": "2026-04-24T12:00:00Z"
+    },
+    {
+        "id": "mock-3",
+        "title": "Sample OwlScreen 3",
+        "subtitle": "Third mock item",
+        "iconName": "bolt.fill",
+        "createdAt": "2026-04-24T12:00:00Z"
+    }
+]

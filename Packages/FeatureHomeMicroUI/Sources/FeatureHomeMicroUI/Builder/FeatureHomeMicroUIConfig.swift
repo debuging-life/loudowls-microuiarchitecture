@@ -9,5 +9,10 @@ public struct FeatureHomeMicroUIConfig: MicroUIRegistration {
         Container.shared.homeScreenBuilder.register {
             FeatureHomeMicroUIScreenBuilder()
         }
+
+        // Register mocks — available in Debug Drawer (DEBUG only)
+        #if DEBUG
+        OwlsMockRegistry.shared.register(FeatureHomeMicroUIMockProvider())
+        #endif
     }
 }

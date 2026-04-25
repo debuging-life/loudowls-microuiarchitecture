@@ -18,6 +18,11 @@ struct MicruiachitectureApp: App {
                 .onOpenURL { url in
                     OwlsDeepLinkRouter.shared.route(url: url)
                 }
+            #if DEBUG
+                .overlay(alignment: .bottomTrailing) {
+                    OwlsDebugButton()
+                }
+            #endif
         }
     }
 }

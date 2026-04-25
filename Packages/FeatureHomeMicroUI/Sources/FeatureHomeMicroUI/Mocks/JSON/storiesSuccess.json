@@ -1,0 +1,29 @@
+[
+    {
+        "id": "mock-1",
+        "title": "The Enchanted Forest",
+        "author": "Mock Author 1",
+        "summary": "A magical tale from the mock world — served from storiesSuccess.json, no API needed.",
+        "coverIcon": "tree.fill",
+        "readTime": 4,
+        "isFavorite": true
+    },
+    {
+        "id": "mock-2",
+        "title": "Adventures in Cloudland",
+        "author": "Mock Author 2",
+        "summary": "Fly through the sky with our heroes. This story is entirely mocked.",
+        "coverIcon": "cloud.sun.fill",
+        "readTime": 6,
+        "isFavorite": false
+    },
+    {
+        "id": "mock-3",
+        "title": "The Rainbow Garden",
+        "author": "Mock Author 3",
+        "summary": "A burst of colors in the garden where flowers sing and trees dance.",
+        "coverIcon": "rainbow",
+        "readTime": 5,
+        "isFavorite": true
+    }
+]

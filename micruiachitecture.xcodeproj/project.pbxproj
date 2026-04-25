@@ -14,7 +14,8 @@
 		BB0001012F8C3D4300196F4F /* OnboardingMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB0003012F8C3D4300196F4F /* OnboardingMicroUI */; };
 		BB0001022F8C3D4300196F4F /* SettingsMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = BB0003022F8C3D4300196F4F /* SettingsMicroUI */; };
 		0682D1BF64AC72F5266B3542 /* FavoriteScreenMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5BDFA2D607BE4430478DA59E /* FavoriteScreenMicroUI */; };
-		2DE81AAD2AEC691653415563 /* UnknowMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = F9C33EFE3EB1C85655B92CB8 /* UnknowMicroUI */; };
+		3845E2D536EF00284CA1B1A7 /* OwlScreenMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = 043ADFE4E0EE14185C2322F0 /* OwlScreenMicroUI */; };
+		B75FF8E035C59E66C4E1FD16 /* OwlAboutMicroUI in Frameworks */ = {isa = PBXBuildFile; productRef = DB795868EABFF7AD210FB456 /* OwlAboutMicroUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +42,8 @@
 				BB0001012F8C3D4300196F4F /* OnboardingMicroUI in Frameworks */,
 				BB0001022F8C3D4300196F4F /* SettingsMicroUI in Frameworks */,
 				0682D1BF64AC72F5266B3542 /* FavoriteScreenMicroUI in Frameworks */,
-				2DE81AAD2AEC691653415563 /* UnknowMicroUI in Frameworks */,
+				3845E2D536EF00284CA1B1A7 /* OwlScreenMicroUI in Frameworks */,
+				B75FF8E035C59E66C4E1FD16 /* OwlAboutMicroUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,7 +93,8 @@
 				BB0003012F8C3D4300196F4F /* OnboardingMicroUI */,
 				BB0003022F8C3D4300196F4F /* SettingsMicroUI */,
 				5BDFA2D607BE4430478DA59E /* FavoriteScreenMicroUI */,
-				F9C33EFE3EB1C85655B92CB8 /* UnknowMicroUI */,
+				043ADFE4E0EE14185C2322F0 /* OwlScreenMicroUI */,
+				DB795868EABFF7AD210FB456 /* OwlAboutMicroUI */,
 			);
 			productName = micruiachitecture;
 			productReference = 064DC3F02F8C3D4300196F4F /* micruiachitecture.app */;
@@ -129,7 +132,8 @@
 				BB0002012F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/OnboardingMicroUI" */,
 				BB0002022F8C3D4300196F4F /* XCLocalSwiftPackageReference "Packages/SettingsMicroUI" */,
 				DE6150966EB44289D7BD8FB2 /* XCLocalSwiftPackageReference "Packages/FavoriteScreenMicroUI" */,
-				2547453CEE17087DFFE2B8A8 /* XCLocalSwiftPackageReference "Packages/UnknowMicroUI" */,
+				B6FB213EFB5917EB5E2C5979 /* XCLocalSwiftPackageReference "Packages/OwlScreenMicroUI" */,
+				EE2CACBA6F46FE66D755AA5F /* XCLocalSwiftPackageReference "Packages/OwlAboutMicroUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 064DC3F12F8C3D4300196F4F /* Products */;
@@ -399,9 +403,13 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FavoriteScreenMicroUI;
 		};
-		2547453CEE17087DFFE2B8A8 /* XCLocalSwiftPackageReference "Packages/UnknowMicroUI" */ = {
+		B6FB213EFB5917EB5E2C5979 /* XCLocalSwiftPackageReference "Packages/OwlScreenMicroUI" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/UnknowMicroUI;
+			relativePath = Packages/OwlScreenMicroUI;
+		};
+		EE2CACBA6F46FE66D755AA5F /* XCLocalSwiftPackageReference "Packages/OwlAboutMicroUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/OwlAboutMicroUI;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -434,9 +442,13 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FavoriteScreenMicroUI;
 		};
-		F9C33EFE3EB1C85655B92CB8 /* UnknowMicroUI */ = {
+		043ADFE4E0EE14185C2322F0 /* OwlScreenMicroUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = UnknowMicroUI;
+			productName = OwlScreenMicroUI;
+		};
+		DB795868EABFF7AD210FB456 /* OwlAboutMicroUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OwlAboutMicroUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

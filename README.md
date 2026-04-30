@@ -13,7 +13,8 @@ This repo is the **reference implementation** built around a children's storytel
 3. [Module File Structure](#module-file-structure)
 4. [Default Modules (Demo App)](#default-modules-demo-app)
 5. [Creating a New Module — `owls-microui`](#creating-a-new-module)
-6. [Navigation](#navigation)
+6. [Running a Module Independently (Example apps)](#running-a-module-independently)
+7. [Navigation](#navigation)
 7. [Factory DI](#factory-di)
 8. [Network Layer (BaseService + APIRoute)](#network-layer)
 9. [Mock Data System / Debug Drawer](#mock-data-system--debug-drawer)
@@ -202,6 +203,111 @@ owls-microui remove Transfers
 ```
 
 **[Full CLI docs →](https://github.com/debuging-life/homebrew-owls-cli)**
+
+---
+
+## Running a Module Independently
+
+Every module ships with its own self-contained iOS app inside `Example/`. Open the project, hit ⌘R, and **just that module** launches — no main app, no login, no other modules. Inspired by the `pod lib create` Example folder pattern banks use.
+
+### Quick start
+
+```bash
+# Open just the Home module
+open Packages/FeatureHomeMicroUI/Example/HomeExampleApp.xcodeproj
+
+# Hit ⌘R — Stories list appears with mock data
+```
+
+### Why this matters
+
+| Use case | How Example apps help |
+|---|---|
+| **UI iteration** | Designer/dev tweaks one screen without launching the full app stack |
+| **Pure isolation** | Verify the module works without unstated dependencies |
+| **Faster compile** | Only the focused module + MicroUICore compile |
+| **Bug reproduction** | "Does it repro in just this module?" → open Example app |
+| **Designer review** | Hand a designer the Example xcodeproj — they don't need the whole codebase |
+
+### Architecture: how it stays clean
+
+The "no module imports another module" rule stays intact. The Example app is a **host** (just like the main app):
+
+```
+Module source code (pure):
+  Sources/FeatureHomeMicroUI/...
+  └── only imports MicroUICore
+
+Example app (host):
+  Example/HomeExampleApp/...
+  └── imports MicroUICore + this module
+  └── registers stubs for cross-module DI slots
+```
+
+When `Home` module's view embeds `profileTileBuilder`, the Example app registers a stub:
+
+```swift
+Container.shared.profileTileBuilder.register {
+    OwlsStubTileBuilder(label: "Profile Tile")
+}
+```
+
+The stub renders a dashed-border placeholder so the focused module's UI still composes correctly.
+
+### Two modes per Example app
+
+**1. Stub mode (default)** — fully isolated. Cross-module slots return placeholder views.
+
+**2. Integration mode (opt-in)** — to test how Module A renders Module B's *real* tile:
+- Add Module B's SPM package to the Example xcodeproj's dependencies
+- Uncomment the `import` and registration block in `ExampleBootstrap.swift`
+
+### Folder structure
+
+```
+Packages/FeatureHomeMicroUI/
+├── Package.swift
+├── Sources/...                              ← module code (pure)
+├── Example/                                 ← sandbox app
+│   ├── HomeExampleApp.xcodeproj
+│   └── HomeExampleApp/
+│       ├── HomeExampleApp.swift             ← @main entry
+│       ├── ExampleBootstrap.swift           ← DI + stubs + mock toggles
+│       └── Assets.xcassets/
+└── Tests/...
+```
+
+### Available Example apps
+
+| Module | Open |
+|---|---|
+| Stories (Home) | `Packages/FeatureHomeMicroUI/Example/HomeExampleApp.xcodeproj` |
+| Auth | `Packages/AuthMicroUI/Example/AuthExampleApp.xcodeproj` |
+| Profile | `Packages/FeatureProfileMicroUI/Example/ProfileExampleApp.xcodeproj` |
+| Settings | `Packages/SettingsMicroUI/Example/SettingsExampleApp.xcodeproj` |
+
+New modules created via `owls-microui create` get an Example app automatically. Pass `--no-sandbox` to skip.
+
+### How modules use other modules (without breaking the rule)
+
+Modules **never** import each other directly. Communication goes through Container slots:
+
+```swift
+// In Module A's view — accesses Module B's tile widget without knowing about it
+@Injected(\.profileTileBuilder) private var profileTile
+
+var body: some View {
+    HStack {
+        Text("Featured by")
+        profileTile?.buildTile()   // Returns AnyView from Profile module
+    }
+}
+```
+
+In the main app: real `FeatureProfileMicroUITileBuilder` is registered → real view renders.
+In the Home Example app: `OwlsStubTileBuilder(label: "Profile Tile")` is registered → placeholder renders.
+
+The module's source code is identical in both cases. The host decides what to register.
 
 ---
 

@@ -1,3 +1,4 @@
+import SwiftUI
 import MicroUICore
 import Factory
 
@@ -9,5 +10,11 @@ public struct SettingsMicroUIConfig: MicroUIRegistration {
         Container.shared.settingsScreenBuilder.register {
             SettingsMicroUIScreenBuilder()
         }
+    }
+
+    /// Factory for Example apps and host apps.
+    @MainActor
+    public static func makeScreen() -> AnyView {
+        SettingsMicroUIScreenBuilder().buildScreen()
     }
 }
